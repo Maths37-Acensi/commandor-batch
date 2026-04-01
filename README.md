@@ -19,6 +19,7 @@ Serveurs :
 - JAVA_HOME
 - LOG_HOME
 - PHP_HOME
+- PROJECT_HOME
 - SSL_HOME
 - TEMP_HOME
 
@@ -1141,3 +1142,25 @@ TODO
 
 J'ai ajouté le certicat Root présent sous C:\domaine\Certificat dans le cacerts du jdk (keytool -importcert -file "PG
 Root CA 2.cer" -cacerts -alias pg-root-ca).
+
+-- Delete
+del C:\app\project\commandor1\pg-kanban.jar
+del C:\app\tomcat\webapps\jwas\WEB-INF\lib\pg-kanban.jar
+del C:\app\project\commandor2\pg-blois-commandor-sb.jar
+
+del C:\app\tomcat\webapps\jwas\META-INF\context.xml
+del C:\app\tomcat\webapps\jwas\WEB-INF\web.xml
+del C:\app\tomcat\webapps\jwas\WEB-INF\classes\log4j.properties
+
+-- Create
+mklink C:\app\project\commandor1\pg-kanban.jar C:\app\project\commandor1\pg-kanban-1.5.2.jar
+mklink C:\app\tomcat\webapps\jwas\WEB-INF\lib\pg-kanban.jar C:\app\project\commandor1\pg-kanban.jar
+mklink C:\app\project\commandor2\pg-blois-commandor-sb.jar C:\app\project\commandor2\pg-blois-commandor-sb-2.1.6.jar
+
+mklink C:\app\tomcat\webapps\jwas\META-INF\context.xml C:\app\project\commandor1\config\context.xml
+mklink C:\app\tomcat\webapps\jwas\WEB-INF\web.xml C:\app\project\commandor1\config\web.xml
+mklink C:\app\tomcat\webapps\jwas\WEB-INF\classes\log4j.properties C:\app\project\commandor1\config\log4j.properties
+
+php.ini => ne veut pas de %PHP_HOME%
+
+commandor v2 : avec WinSW pas trouvé comment renseigner les var d'env
