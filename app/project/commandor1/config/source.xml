@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<sources>
+
+	<!-- Source PARAM -->
+	<source name="param" class="com.tlgpro.requeteur.datasource.JdbcSource">
+		<param name="use_pool" value="yes"/>
+		<param name="monitor_pool_connection" value="no"/>
+		<param name="transaction_isolation" value="TRANSACTION_READ_UNCOMMITTED"/>
+		<param name="database_owner" value="dbo"/>
+		<param name="support_insert_multiple" value="1"/>
+	</source>
+
+</sources>

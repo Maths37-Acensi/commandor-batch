@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<object-mapping>
+
+	<object name="ParametreSysteme" class="com.tlgpro.jwascore.log.GenericObjectLog" table="param.SYS_PROPRIETE_APPLICATION">
+		<params>
+			<param name="Log.HMIName" value="Paramètre système" />
+		</params>
+		<field name="id" type="int" persistent="1" />
+		<field name="nom" type="String" persistent="1" def-value="" />
+		<field name="valeur" type="String" persistent="1" def-value="" />
+		<field name="paramInitLogin" type="int" persistent="1" def-value="" />
+		<field name="description" type="String" persistent="1" def-value="" />
+	</object>
+
+	<object name="Fournisseur" class="com.tlgpro.jwascore.log.GenericObjectLog" table="param.FOURNISSEUR">
+        <params>
+           	<param  name="ObjCaptionFieldName" value="libelle"/>
+           	<param  name="SuffixOnCloneObj" value=" Copie"/>
+           	<param  name="ApplyPrefixOnCloneObj" value="1"/>
+			<param name="Log.HMIName" value="Fournisseur"/>			
+        </params>
+		<field name="id" 				type="int" 		def-value="" 											persistent="1"/>
+		<field name="libelle" 			type="String" 	def-value="Nouveau fournisseur" 						persistent="1"/>
+		<field name="actif" 			type="int" 		def-value="1" 											persistent="1"/>
+		<field name="code" 				type="String" 	def-value="" 											persistent="1"/>
+	</object>
+	
+	<object name="MaterialType" class="com.tlgpro.jwascore.log.GenericObjectLog" table="param.MATERIAL_TYPE">
+		<params>
+           	<param  name="ObjCaptionFieldName" value="libelle"/>
+           	<param  name="SuffixOnCloneObj" value=" Copie"/>
+           	<param  name="ApplyPrefixOnCloneObj" value="1"/>
+			<param name="Log.HMIName" value="MaterialType"/>			
+        </params>
+		<field name="id" type="int" def-value="" persistent="1" />
+		<field name="code" type="String" def-value="" persistent="1" />
+		<field name="libelle" type="String" def-value="" persistent="1" />
+	</object>
+
+</object-mapping>

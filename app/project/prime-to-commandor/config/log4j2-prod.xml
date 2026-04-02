@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn" monitorInterval="30">
+    <Properties>
+
+        <!-- Choix du répertoire utilisé pour la génération des logs -->
+        <Property name="basePath">${env:LOG_HOME}/prime-to-commandor</Property>
+
+        <Property name="patternLog">[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} %l [%-15t] %-20.-20C{1.} %msg%n</Property>
+
+        <Property name="patternUtiliseConsole">${patternLog}</Property>
+        <Property name="patternUtiliseFichiers">${patternLog}</Property>
+
+    </Properties>
+
+    <Appenders>
+
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout charset="UTF-8">
+                <pattern>${patternUtiliseFichiers}</pattern>
+            </PatternLayout>
+        </Console>
+
+        <RollingFile name="fileLogger" fileName="${basePath}/prime-to-commandor.log"
+                     filePattern="${basePath}/old/prime-to-commandor_%02i.log">
+            <PatternLayout charset="UTF-8">
+                <pattern>${patternUtiliseFichiers}</pattern>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="5 MB"/>
+            </Policies>
+            <!-- Nb fichiers max à conserver -->
+            <DefaultRolloverStrategy max="60"/>
+        </RollingFile>
+
+    </Appenders>
+
+    <Loggers>
+        <Logger name="com.petg.blois" level="info" additivity="false">
+            <appender-ref ref="fileLogger"/>
+        </Logger>
+
+        <Logger name="org.apache.logging.log4j" level="error" additivity="true">
+            <appender-ref ref="fileLogger"/>
+        </Logger>
+
+        <Logger name="org.hibernate.SQL" level="off" additivity="false">
+            <appender-ref ref="fileLogger"/>
+        </Logger>
+
+        <Logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="off" additivity="false">
+            <appender-ref ref="fileLogger"/>
+        </Logger>
+        <Root level="info" additivity="true">
+            <appender-ref ref="console"/>
+            <appender-ref ref="fileLogger"/>
+        </Root>
+
+    </Loggers>
+</Configuration>

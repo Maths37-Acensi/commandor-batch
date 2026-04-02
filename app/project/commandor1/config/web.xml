@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app>
+
+	<!-- Servlet principale pour les services de requête -->
+
+	<servlet>
+	    <servlet-name>jwservlet</servlet-name>
+    	<servlet-class>com.tlgpro.jwas.servlet.JWasServletSecu</servlet-class>
+    	<load-on-startup>1</load-on-startup>
+
+		<init-param> 
+    		<param-name>workDir</param-name>
+	    	<param-value>${project.home}/commandor1/config</param-value>        
+	    </init-param> 
+
+		<init-param> 
+    		<param-name>dirTempFile</param-name>
+	    	<param-value>${temp.home}</param-value>       
+	    </init-param> 
+
+		<init-param> 
+		    <param-name>urlTempFile</param-name>
+    		<param-value>/kanban/temp</param-value>
+	    </init-param> 
+	
+	</servlet>
+
+	<servlet-mapping>
+    	<servlet-name>jwservlet</servlet-name>
+	    <url-pattern>/jwservlet</url-pattern>
+	</servlet-mapping>
+
+	<listener>
+    	<listener-class>
+        	com.tlgpro.jwas.util.JWasSessionListenerSecu
+		</listener-class>
+	</listener>
+	
+  	<session-config> 
+		<session-timeout>60</session-timeout>  <!-- pour 60 minutes -->
+	</session-config>
+  
+</web-app>

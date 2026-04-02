@@ -1,0 +1,80 @@
+server:
+  address: 127.0.0.1
+  port: 8081
+spring:
+  datasource: # TODO Set SQL-COMMANDOR-RW password
+    jdbc-url: jdbc:sqlserver://BLO-SQL-PROD01\COMMANDOR;databaseName=pg_commandorv2;applicationName=pg_commandorv2_spring?useServerPrepStmts=true;trustServerCertificate=true;loginTimeout=30;
+    username: &username SQL-COMMANDOR-RW
+    password: &password
+  datasource-logs:
+    jdbc-url: jdbc:sqlserver://BLO-SQL-PROD01\COMMANDOR;databaseName=pg_commandorv2_logs;applicationName=pg_commandorv2_spring?useServerPrepStmts=true;trustServerCertificate=true;loginTimeout=30;
+    username: *username
+    password: *password
+  mail:
+    host: SRV-BLO-TOOL.blo-prod.local
+    port: 2525
+    properties:
+      mail:
+        transport:
+          protocol: smtp
+      smtp:
+        port: 2525
+        auth: false
+        starttls:
+          enable: false
+
+spring.jpa.show-sql: false
+spring.jpa.properties.hibernate.format_sql: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    shutdown:
+      enabled: true
+
+commandor:
+  imports:
+    manpo:
+      directory: '${project.home}/commandor2/data/manpo/'
+      fileNamePattern: 'manpo.*\.xls.*'
+    workingTimes:
+      directory: '${project.home}/commandor2/data/cr12/'
+      fileNamePattern: '^cr.*\.csv$'
+    planning:
+      directory: '${project.home}/commandor2/data/zc228/'
+      fileNamePattern: '^zc228.*\.txt$'
+      emails: 'pg@acensi.fr'
+    masterdata:
+      directory: '${project.home}/commandor2/data/masterdata/'
+      fileNamePattern: '.*\.xls?'
+      emails: 'pg@acensi.fr'
+  navettes:
+    commandes:
+      emails: 'pg@acensi.fr'
+      emailsErreurs: 'pg@acensi.fr'
+      delaiAvantCommande: 195
+      nbMinutesAmorcage: 30
+      alpla:
+        clusters: 'C01,C10-11,C12-13,C14,C16,C17,C14-15'
+        emails: 'pg@acensi.fr'
+    nbHeuresMaxCalcul: 96
+  mails:
+    enabled: true
+    prefixe-sujet: '[Commandor-Test] '
+    testing:
+      to: pg@acensi.fr
+      enabled: false
+    debug:
+      emails: 'pg@acensi.fr'
+logging:
+  config: 'classpath:log4j2-prod.xml'
+
+ldap:
+  url: ldaps://ed.pg.com:636
+  domain: ldaps://ed.pg.com:636/ou=people,ou=pg,o=world
+  baseDn:
+  bindDn: extShortName={0},ou=people,ou=pg,o=world
+  searchBase: ou=people,ou=pg,o=world

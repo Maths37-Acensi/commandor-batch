@@ -13,7 +13,9 @@ if ""%1"" == ""install"" goto doInstall
 if ""%1"" == ""start"" goto doStart
 if ""%1"" == ""stop"" goto doStop
 if ""%1"" == ""delete"" goto doDelete
-if ""%1"" == ""run"" goto doRun
+
+echo ERROR : Unknown action %1 
+EXIT /B 7
 goto doEnd
 
 :doInstall
@@ -36,13 +38,6 @@ call:mngsc stop
 goto doEnd
 
 :doDelete
-echo Delete service %SERVICE_NAME%
-call:mngsc stop > NUL
-timeout 1 > NUL
-call:mngsc delete
-goto doEnd
-
-:doRun
 echo Delete service %SERVICE_NAME%
 call:mngsc stop > NUL
 timeout 1 > NUL

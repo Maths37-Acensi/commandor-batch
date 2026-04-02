@@ -1,8 +1,7 @@
 @ECHO OFF     
 
 set CURRENT_DIR=%~dp0
-set SERVICE_NAME=1-Commandor2
-rem !!! Attention des configurations de démarrage sont renseignées dans le fichier C:\app\commandorv2\commandorv2.xml !!!
+set SERVICE_NAME=1-Commandor1
 
 if ""%1"" == ""install"" goto doInstall
 
@@ -13,7 +12,8 @@ goto doEnd
 echo Install service %SERVICE_NAME%
 call %CURRENT_DIR%\common.bat %SERVICE_NAME% delete > NUL
 timeout 1 > NUL
-call %APP_HOME%\commandorv2\commandorv2.exe install
+set SERVICE_STARTUP_MODE=auto
+call %CATALINA_HOME%\bin\service.bat install %SERVICE_NAME%
 goto doEnd
 
 :doEnd

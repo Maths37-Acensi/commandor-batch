@@ -1,0 +1,149 @@
+<!--
+  MIT License
+
+  Copyright (c) 2008-2020 Kohsuke Kawaguchi, Sun Microsystems, Inc., CloudBees,
+  Inc., Oleg Nenashev and other contributors
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+-->
+
+<!--
+ This is a sample configuration of the Windows Service Wrapper.
+ This configuration file should be placed near the WinSW executable, the name should be the same.
+ E.g. for myapp.exe the configuration file name should be myapp.xml
+ 
+ You can find more information about configuration options here: https://github.com/kohsuke/winsw/blob/master/doc/xmlConfigFile.md
+-->
+<service>
+
+    <!--
+    SECTION: Mandatory options
+    All options in other sections are optional
+    -->
+    <!-- ID of the service. It should be unique accross the Windows system-->
+    <id>%SERVICE_NAME%</id>
+    <!-- Display name of the service -->
+    <name>Commandor v2 Service</name>
+    <!-- Service description -->
+    <description>This service is used to launch Spring Boot application</description>
+
+    <env name="PRIME_TO_COMMANDOR_JAR" value="prime-to-commandor.jar"/>
+    <env name="SPRING_PROFILES_ACTIVE" value="prod"/>
+    <env name="PRIME_TO_COMMANDOR_CLASS" value="com.petg.blois.Main"/>
+    <env name="BATCH_KEY" value="unload"/>
+    <env name="BATCH_DELAY" value="30000"/>
+
+    <!-- Path to the executable, which should be started -->
+    <executable>java</executable>
+    <arguments>
+        -Dlog.home=%LOG_HOME%;-Dproject.home=%PROJECT_HOME%
+        -cp "%PROJECT_HOME%/prime-to-commandor/%PRIME_TO_COMMANDOR_JAR%;%PROJECT_HOME%/prime-to-commandor/config"
+        %PRIME_TO_COMMANDOR_CLASS%
+    </arguments>
+    <!--
+      OPTION: priority
+      Desired process priority.
+      Possible values: Normal, Idle, High, RealTime, BelowNormal, AboveNormal
+      Default value: Normal
+    -->
+    <priority>Normal</priority>
+
+    <!--
+      OPTION: stoptimeout
+      Time to wait for the service to gracefully shutdown the executable before we forcibly kill it
+      Default value: 15 seconds
+    -->
+    <stoptimeout>15 sec</stoptimeout>
+
+    <!--
+      OPTION: stopparentprocessfirst
+      If set, WinSW will terminate the parent process before stopping the children.
+      Default value: true
+    -->
+    <stopparentprocessfirst>true</stopparentprocessfirst>
+
+    <!--
+    SECTION: Service management
+    -->
+    <!--
+      OPTION: startmode
+      Defines start mode of the service.
+      Supported modes: Automatic, Manual, Boot, System (latter ones are supported for driver services only)
+      Default mode: Automatic
+    -->
+    <startmode>Automatic</startmode>
+
+    <!--
+      OPTION: waithint
+      The estimated time required for a pending stop operation.
+      Before the specified amount of time has elapsed, the service should make its next call to the SetServiceStatus function.
+      Otherwise the service will be marked as non-responding
+      Default value: 15 seconds
+    -->
+    <waithint>15 sec</waithint>
+
+    <!--
+      OPTION: sleeptime
+      The time before the service should make its next call to the SetServiceStatus function.
+      Do not wait longer than the wait hint. A good interval is one-tenth of the wait hint but not less than 1 second and not more than 10 seconds.
+      Default value: 1 second
+    -->
+    <sleeptime>1 sec</sleeptime>
+
+    <!--
+    SECTION:Logging
+    -->
+
+    <!--
+      OPTION: logpath
+      Sets a custom logging directory for all logs being produced by the service wrapper
+      Default value: Directory, which contains the executor
+    -->
+
+    <logpath>%LOG_HOME%/prime-to-commandor</logpath>
+
+
+    <!--
+      OPTION: log
+      Defines logging mode for logs produced by the executable.
+      Supported modes:
+        * append - Rust update the existing log
+        * none - Do not save executable logs to the disk
+        * reset - Wipe the log files on startup
+        * roll - Roll logs based on size
+        * roll-by-time - Roll logs based on time
+        * rotate - Rotate logs based on size, (8 logs, 10MB each). This mode is deprecated, use "roll"
+      Default mode: append
+
+      Each mode has different settings.
+      See https://github.com/kohsuke/winsw/blob/master/doc/loggingAndErrorReporting.md for more details
+    -->
+    <!--
+  <log mode="append">
+    <setting1/>
+    <setting2/>
+  </log>
+  -->
+
+    <log mode="roll-by-size">
+        <sizeThreshold>20000</sizeThreshold>
+        <keepFiles>20</keepFiles>
+    </log>
+
+</service>

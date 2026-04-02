@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<paths>
+	<path name="UTILISATEUR-PARAM_PROFIL" from="param.SECU_UTILISATEUR" to="param.SECU_PARAM_PROFIL">
+		<relation name="profil-utilisateur"/>
+		<relation name="profil-param_profil"/>
+	</path>
+	
+	<path name="CONTAINER_TYPE-PLAN_SAP" from="param.CONTAINER_TYPE" to="param.PLAN_SAP">
+		<relation name="container_type-gcas_parametrage"/>
+		<relation name="gcas_parametrage-plan_sap"/>
+	</path>
+	
+	<path name="MATERIAL_TYPE-PLAN_SAP" from="param.MATERIAL_TYPE" to="param.PLAN_SAP">
+		<relation name="material_type-gcas_parametrage" join="left outer"/>
+		<relation name="gcas_parametrage-plan_sap" join="left outer"/>
+	</path>
+
+	<path name="PLAN_SAP-LIGNE_TREMIE" from="param.PLAN_SAP" to="param.LIGNE_TREMIE">
+		<relation name="ligne_sap-plan_sap"/>
+		<relation name="ligne_tremie-ligne_sap"/>
+	</path>
+	
+	<path name="NAVETTE-LIGNE_SAP" from="param.NAVETTE" to="param.LIGNE_SAP">
+		<relation name="ligne_tremie-navette"/>
+		<relation name="ligne_tremie-ligne_sap"/>
+	</path>
+	
+	<path name="NAVETTE_CONTENU-LIGNE_TREMIE" from="param.NAVETTE_CONTENU" to="param.LIGNE_TREMIE">
+		<relation name="navette-navette_contenu"/>
+		<relation name="ligne_tremie-navette"/>
+	</path>
+	
+	<path name="NAVETTE_CONTENU-LIGNE_SAP" from="param.NAVETTE_CONTENU" to="param.LIGNE_SAP">
+		<relation name="navette-navette_contenu"/>
+		<relation name="ligne_tremie-navette"/>
+		<relation name="ligne_tremie-ligne_sap"/>
+	</path>
+	
+	<path name="NAVETTE_CONTENU-NAVETTE_STATUT" from="param.NAVETTE_CONTENU" to="param.NAVETTE_STATUT">
+		<relation name="navette-navette_contenu"/>
+		<relation name="navette_statut-navette"/>
+	</path>
+	
+	<path name="NAVETTE_CONTENU-QUAI" from="param.NAVETTE_CONTENU" to="param.QUAI">
+		<relation name="navette-navette_contenu" join="left outer"/>
+		<relation name="quai-navette" join="left outer"/>
+	</path>
+	
+	<path name="LIGNE_PROD_EN_COURS_HISTO-LIGNE_TREMIE" from="param.LIGNE_PROD_EN_COURS_HISTO" to="param.LIGNE_TREMIE">
+		<relation name="ligne_sap-ligne_prod_en_cours_histo"/>
+		<relation name="ligne_tremie-ligne_sap"/>
+	</path>
+	
+	<path name="PLAN_SAP-SECU_LIGNE_PROFIL" from="param.PLAN_SAP" to="param.SECU_LIGNE_PROFIL">
+		<relation name="ligne_sap-plan_sap"/>
+		<relation name="ligne_tremie-ligne_sap"/>
+		<relation name="ligne_tremie-secu_ligne_profil"/>
+	</path>
+	
+	<path name="RTCIS_RESERVATION_STOCK-SECU_LIGNE_PROFIL" from="param.RTCIS_RESERVATION_STOCK" to="param.SECU_LIGNE_PROFIL">
+		<relation name="ligne_tremie-rtcis_reserv_stock"/>
+		<relation name="ligne_tremie-secu_ligne_profil"/>
+	</path>
+	
+	<path name="LIGNE_PROD_EN_COURS_HISTO-SECU_LIGNE_PROFIL" from="param.LIGNE_PROD_EN_COURS_HISTO" to="param.SECU_LIGNE_PROFIL">
+		<relation name="ligne_sap-ligne_prod_en_cours_histo"/>
+		<relation name="ligne_tremie-ligne_sap"/>
+		<relation name="ligne_tremie-secu_ligne_profil"/>
+	</path>
+
+	<path name="NAVETTE-SECU_LIGNE_PROFIL" from="param.NAVETTE" to="param.SECU_LIGNE_PROFIL">
+		<relation name="ligne_tremie-navette"/>
+		<relation name="ligne_tremie-secu_ligne_profil"/>
+	</path>
+	
+	<path name="NAVETTE_CONTENU-SECU_LIGNE_PROFIL" from="param.NAVETTE_CONTENU" to="param.SECU_LIGNE_PROFIL">
+		<relation name="navette-navette_contenu"/>
+		<relation name="ligne_tremie-navette"/>
+		<relation name="ligne_tremie-secu_ligne_profil"/>
+	</path>
+	
+	<path name="NAVETTE_HISTO-SECU_LIGNE_PROFIL" from="param.NAVETTE_HISTO" to="param.SECU_LIGNE_PROFIL">
+		<relation name="ligne_tremie-navette_histo"/>
+		<relation name="ligne_tremie-secu_ligne_profil"/>
+	</path>
+	
+	<relation name="report_gcas_en_cours_view-ligne_tremie" from="param.LIGNE_TREMIE" to="param.REPORT_GCAS_EN_COURS_VIEW" fk="idLigne"/>
+	
+	<path name="REPORT_GCAS_EN_COURS_VIEW-SECU_LIGNE_PROFIL" from="param.REPORT_GCAS_EN_COURS_VIEW" to="param.SECU_LIGNE_PROFIL">
+		<relation name="report_gcas_en_cours_view-ligne_tremie"/>
+		<relation name="ligne_tremie-secu_ligne_profil"/>
+	</path>
+
+</paths>

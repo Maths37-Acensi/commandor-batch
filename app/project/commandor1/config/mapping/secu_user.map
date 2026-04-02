@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<object-mapping>
+	<object name="SecuProfil" class="procter.server.kanban.security.SecuProfil" table="param.secu_profil">
+		<params>
+			<param name="ObjCaptionFieldName" value="nom"/>
+			<param name="SuffixOnCloneObj" value=" Copie "/>
+			<param name="ApplyPrefixOnCloneObj" value="1"/>
+			<param name="Log.HMIName" value="Profil utilisateur"/>			
+		</params>
+		<field name="id" type="int"	persistent="1"/>
+		<field name="nom" type="String" persistent="1" def-value="Nouveau profil"/>
+		<field name="param" type="String" persistent="1" def-value=""/>
+		<field name="isAdmin" type="int" persistent="1" def-value="0"/>
+
+		<field name="paramsProfil" type="Map" key-map="nom" persistent="1">
+			<object name="ParamProfil" relation=""/>
+		</field>
+
+	</object>
+
+	<object name="Utilisateur" class="com.tlgpro.jwascore.security.UserAdmin" table="param.secu_utilisateur">
+		<params>
+			<param name="ObjCaptionFieldName" value="code"/>
+			<param name="SuffixOnCloneObj" value=" Copie "/>
+			<param name="ApplyPrefixOnCloneObj" value="1"/>
+			<param name="log.hiddenFields" value="mdp,salt,pass"/>
+		</params>
+	
+		<field name="id" type="int"	persistent="1"/>
+		<field name="id_profil" type="int" persistent="1" def-value=""/>
+		<field name="nom" type="String" persistent="1" def-value="Nouvel utilisateur"/>
+		<field name="prenom" type="String" persistent="1" def-value=""/>
+		<field name="code" type="String" persistent="1" def-value=""/>
+		<field name="mail" type="String" persistent="1" def-value=""/>
+		<field name="mdp" type="String" persistent="0" def-value=""/>
+		<field name="pass" type="String" persistent="1" def-value=""/>
+		<field name="salt" type="String" persistent="1" def-value=""/>
+		<field name="modeAuthentification" type="String" persistent="1" def-value="LDAP"/>
+		<field name="desactivation" type="int" persistent="1" def-value="0"/>
+		<field name="notifAlert" type="int"	persistent="1" def-value="0"/>
+		<field name="ParamProfil" type="Map" key-map="nom" persistent="1" read-only="1">
+			<object name="ParamProfil" relation="UTILISATEUR-PARAM_PROFIL"/>
+		</field>
+	</object>
+
+	<!-- Utilisé par le gestionnaire de sécurité comme utilisateur par défaut -->
+	<object name="UtilisateurSysteme" class="com.tlgpro.jwascore.security.UserAdmin" table="param.secu_utilisateur">
+		<field name="id" type="int"	persistent="1" def-value="0"/>
+		<field name="id_profil" type="int" persistent="1" def-value="0"/>
+		<field name="nom" type="String" persistent="1" def-value="Utilisateur systeme"/>
+		<field name="prenom" type="String" persistent="1" def-value=""/>
+		<field name="mdp" type="String" persistent="0" def-value=""/>
+		<field name="pass" type="String" persistent="1" def-value=""/>
+		<field name="code" type="String" persistent="1" def-value="UserSysteme"/>
+		<field name="mail" type="String" persistent="1" def-value=""/>
+	</object>
+
+	<object name="ParamProfil" class="com.tlgpro.jwascore.security.ParamProfil" table="param.SECU_PARAM_PROFIL">
+		<field name="id" type="int"	persistent="1"/>
+		<field name="idProfil" type="int" persistent="1"/>
+		<field name="idParam" type="int" persistent="1"/>
+
+		<field name="nom" type="String" persistent="1" read-only="1">
+			<column name="SECU_PARAM_LISTE.nom"/>
+		</field>
+		<field name="valeur" type="String"	persistent="1"/>
+
+		<field name="valeurDefaut" type="String" persistent="1" read-only="1">
+			<column name="SECU_PARAM_LISTE.valeurDefaut"/>
+		</field>
+
+		<field name="niveau" type="int" persistent="1" read-only="1">
+			<column name="SECU_PARAM_LISTE.niveau"/>
+		</field>
+
+		<field name="libelle" type="String" persistent="1" read-only="1">
+			<column name="SECU_PARAM_LISTE.libelle"/>
+		</field>
+
+		<field name="visible" type="int" persistent="1" read-only="1">
+			<column name="SECU_PARAM_LISTE.visible"/>
+		</field>
+
+	</object>
+
+	<object name="ParamSecu" class="com.tlgpro.jwascore.security.ParamSecu" table="param.SECU_PARAM_LISTE">
+		<field name="id" type="int"	persistent="1"/>
+		<field name="nom" type="String" persistent="1" read-only="1"/>
+		<field name="libelle" type="String" persistent="1" read-only="1"/>
+		<field name="niveau" type="int" persistent="1" read-only="1"/>
+		<field name="valeurDefaut" type="String" persistent="1"/>
+		<field name="visible" type="int" persistent="1" read-only="1"/>
+	</object>
+	
+	<!--******** CLASSE SecuModifStatut ********-->
+	<object name="SecuModifStatut" class="procter.server.kanban.security.SecuModifStatut" table="param.SECU_MODIF_STATUT">
+		<field name="id" type="int" def-value="" persistent="1" />
+		<field name="idProfil" type="int" def-value="" persistent="1" />
+		<field name="idStatutFrom" type="int" def-value="" persistent="1" />
+		<field name="idStatutTo" type="int" def-value="" persistent="1" />
+		<field name="valeur" type="int" def-value="" persistent="1" />
+	</object>
+	
+	<!--******** CLASSE SecuLigneProfil ********-->
+	<object name="SecuLigneProfil" class="procter.server.kanban.security.SecuLigneProfil" table="param.SECU_LIGNE_PROFIL">
+		<field name="id" type="int" def-value="" persistent="1" />
+		<field name="idProfil" type="int" def-value="" persistent="1" />
+		<field name="idLigneTremie" type="int" def-value="" persistent="1" />
+		<field name="valeur" type="int" def-value="" persistent="1" />
+	</object>
+	
+</object-mapping>
+

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<Context path="/jwas" reloadable="false">
+    <!-- TODO : Set SQL-COMMANDOR-RW password -->
+    <Resource
+            name="jdbc/param"
+            type="javax.sql.DataSource"
+            driverClassName="net.sourceforge.jtds.jdbc.Driver"
+            username="SQL-COMMANDOR-RW"
+            password=""
+            url="jdbc:jtds:sqlserver://BLO-SQL-PROD01/pg_commandorv1;instance=COMMANDOR;autoReconnect=true"
+            testWhileIdle="true"
+            testOnBorrow="true"
+            testOnReturn="false"
+            validationQuery="SELECT 1"
+            validationInterval="30000"
+            timeBetweenEvictionRunsMillis="5000"
+            maxActive="100"
+            minIdle="10"
+            maxWait="10000"
+            initialSize="10"
+            removeAbandonedTimeout="60"
+            removeAbandoned="true"
+            minEvictableIdleTimeMillis="30000"
+    />
+</Context>
+

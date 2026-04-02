@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web_tasks>
+
+    <!--*****************TACHE PING*****************-->
+    <web_task name="ping" class="com.tlgpro.jwas.wtask.WTPing">
+        <params>
+            <param name="security.disable" value="1"/>
+        </params>
+    </web_task>
+
+    <!--*****************TACHE LOGO TLGPro*****************-->
+    <web_task name="tlgpro" class="com.tlgpro.jwas.wtask.WTLogo">
+        <params>
+            <param name="security.disable" value="1"/>
+        </params>
+    </web_task>
+
+    <!--*****************TACHE NONCE*****************-->
+    <web_task name="nonce" class="com.tlgpro.jwas.wtask.WTNonce">
+        <params>
+            <param name="security.disable" value="1"/>
+        </params>
+    </web_task>
+
+    <!--*****************TACHE ECHO*****************-->
+    <web_task name="echo" class="com.tlgpro.jwas.wtask.WTEcho">
+        <params>
+            <param name="security.disable" value="1"/>
+        </params>
+    </web_task>
+
+    <!--*****************TACHE QUERY****************-->
+    <web_task name="query" class="com.tlgpro.jwas.wtask.WTQuery"/>
+
+    <!--*****************TACHE QUERY ASYNCHRONE****************-->
+    <web_task name="queryasynch" class="com.tlgpro.jwas.wtask.WTQueryAsynch"/>
+
+    <!--**************TACHE REQUETE OBJET***********-->
+    <web_task name="objet" class="com.tlgpro.jwas.wtask.WTQueryObject"/>
+
+    <!--**************TACHE CRUD OBJET***********-->
+    <web_task name="WTCrudObject" class="com.tlgpro.jwas.wtask.WTCrudObject"/>
+
+    <!--*****************TACHE MODELMETADATA****************-->
+    <web_task name="modelmetadata" class="com.tlgpro.jwas.wtask.WTModelMetadata"/>
+
+    <!--*****************TACHE LOGIN****************-->
+    <web_task name="LOGIN" class="com.tlgpro.jwascore.security.WTSecu">
+        <params>
+            <param name="security.disable" value="1"/>
+        </params>
+    </web_task>
+
+    <!--*****************TACHE WTChangePass ****************-->
+    <web_task name="WTChangePass" class="com.tlgpro.jwascore.security.WTChangePass"/>
+
+    <!--*****************TACHE REPORT****************-->
+    <!--	<web_task name="Report" class="com.tlgpro.xreport3.server.WTDXReport"/> -->
+
+    <!--***************** Controleur spécifique à l'application Kaban ****************-->
+    <web_task name="WTCtrlKanban" class="procter.server.kanban.WTCtrlKanban">
+        <params>
+            <param name="security.disable" value="0"/>
+        </params>
+    </web_task>
+
+    <!--***************** Controleur spécifique à l'application Kaban - IHM TV ****************-->
+    <web_task name="WTCtrlTvKanban" class="procter.server.kanban.WTCtrlTvKanban">
+        <params>
+            <param name="security.disable" value="1"/>
+        </params>
+    </web_task>
+
+    <!--***************** Service de notification de la base de données ****************-->
+    <web_task name="WTDbNotif" class="procter.server.kanban.notif.WTDbNotif">
+        <params>
+            <param name="security.disable" value="1"/>
+        </params>
+    </web_task>
+
+    <!--**********************Tache a initialiser au demarrage du serveur d'application ****************-->
+    <init_task name="tlgpro" class="com.tlgpro.jwas.wtask.WTLogo"/>
+
+    <!--*****************INIT REQUETEUR****************-->
+    <init_task name="INIT_REQUETEUR" class="com.tlgpro.jwas.wtask.WTInitRequeteur">
+        <!--Liste des parametres-->
+        <params>
+            <!--Parametre de localisation du fichier descripteur des sources de données
+            dans le repertoire de travail de la servlet (parametre workDir dans le fichier web.xml)-->
+            <param name="filesource" value="source.xml"/>
+
+            <!--Parametre de localisation du répertoire des modèle de données en relatif
+            du repertoire de travail de la servlet (parametre workDir dans le fichier web.xml)-->
+            <param name="scandir-model" value="model"/>
+        </params>
+    </init_task>
+
+    <!--*****************INIT PERSISTENCE****************-->
+    <init_task name="INIT_PERSISTANCE" class="com.tlgpro.jwas.wtask.WTInitPersistence">
+        <params>
+            <!--Parametre de localisation du repertoire de mapping des objets en relatif
+            du repertoire de travail de la servlet (parametre workDir dans le fichier web.xml)-->
+            <param name="scandir-mapping" value="mapping"/>
+        </params>
+    </init_task>
+
+    <!--*****************INIT SECURITE****************-->
+    <init_task name="INIT_SECURITY_MANAGER" class="com.tlgpro.security.server.WTSecuMgr">
+        <params>
+            <param name="security.enabled" value="1"/>
+            <param name="security.class_controler" value="com.tlgpro.jwascore.security.SecuControler"/>
+            <param name="security.object_user" value="Utilisateur"/>
+            <param name="security.default_user_object" value="UtilisateurSysteme"/>
+            <param name="security.login_field_name" value="code"/>
+            <param name="security.password_field_name" value="pass"/>
+            <param name="security.salt_field_name" value="salt"/>
+            <param name="security.disable_user_field_name" value="desactivation"/>
+            <param name="security.authenticate_mode_field_name" value="modeAuthentification"/>
+
+            <!-- Nom de la table contenant les paramètres d'ergonomie pour la fenêtre de login -->
+            <param name="security.param_init_login.table" value="param.SYS_PROPRIETE_APPLICATION"/>
+            <!-- Nom du champ contenant le nom des paramètres d'ergonomie pour la fenêtre de login -->
+            <param name="security.param_init_login.field_name" value="nom"/>
+            <!-- Nom du champ contenant la valeur des paramètres d'ergonomie pour la fenêtre de login -->
+            <param name="security.param_init_login.field_value" value="valeur"/>
+            <!-- Nom du champ pour le filtre de lecture des paramètres d'ergonomie pour la fenêtre de login (Optionnel) -->
+            <param name="security.param_init_login.filter_field" value="paramInitLogin"/>
+            <!-- Opérateur du filtre de lecture des paramètres d'ergonomie pour la fenêtre de login (Optionnel) -->
+            <param name="security.param_init_login.filter_operator" value=">"/>
+            <!-- Liste des valeurs pour le filtre de lecture des paramètres d'ergonomie pour la fenêtre de login (Optionnel) -->
+            <param name="security.param_init_login.filter_values" value="0"/>
+
+            <!-- Paramètres LDAP -->
+            <param name="security.class_loging" value="procter.common.security.PGSecurityLogingCrypted"/>
+            <param name="security.param_init_login.ldap.hostName" value="ldaps://ed.pg.com:636"/>
+            <param name="security.param_init_login.ldap.loginTemplate" value="uid={LOGIN},ou=people, ou=pg, o=world"/>
+            <param name="security.param_init_login.ldap.searchDomain" value="ou=people,ou=pg,o=world"/>
+
+        </params>
+    </init_task>
+
+    <init_task name="INIT_APPLI" class="procter.server.kanban.WTInitKanban">
+        <params>
+
+            <param name="appli.repertoire_save"
+                   value="${project.home}/commandor1/save"/><!-- Emplacement des fichiers à sauvegarder pour suivi (ex. fichier dernière commande tubes) -->
+            <!-- Paramètres du controleur principal -->
+            <param name="line_ctrl.scanne_period"
+                   value="1000"/>                                <!-- Période en miliseconde de traitement des controleurs de lignes -->
+
+            <param name="tubescatroux.prise_en_compte_compteur_ligne"
+                   value="1"/>                    <!-- Est-ce que le compteur sera pris en compte pour le calcul des navettes (classe TubesCtrlCatroux) -->
+
+            <!-- Configuration de la messagerie smtp -->
+            <param name="jwas.smtp.host" value="SRV-BLO-TOOL.blo-prod.local"/>
+            <param name="jwas.smtp.port" value="2525"/>
+            <param name="jwas.smtp.from">no-reply-commandor1@pg.com</param>
+            <param name="jwas.smtp.username" value=""/>
+            <param name="jwas.smtp.password" value=""/>
+
+            <!-- Paramètres pour les messages d'alerte -->
+            <param name="notif.objet_message" value="[Commandor] Notification Synchronisation KANBAN"/>
+
+            <!-- Paramètres pour les mails de commande -->
+            <param name="mail_commande.objet_message" value="[Commandor] Commande KANBAN"/>
+            <param name="mail_commande.style_message">
+                <![CDATA[table {border: solid 2px black;} thead tr th {border-bottom: solid 2px black;} th {font-weight:bold;text-align:center;} tbody tr:nth-child(odd) {background: #DDD} tbody tr:nth-child(even){background: #FEFEFE} tbody td {padding: 5px 20px}]]></param>
+            <param name="mail_commande.template_message">
+                <![CDATA[Bonjour,<br/><br/>Veuillez trouver ci-joint la prochaine commande de tubes.<br/><br/><b>Navette n°$NO_NAVETTE$<br/>Commandée le $DATE_CMDE$ à $HEURE_CMDE$</b><br/><br/>$CONTENU_NAV$]]></param>
+
+            <!-- Paramètres généraux à l'application KANBAN -->
+            <param name="kanban.seuil_arrondi_cont_sup"
+                   value="0.05"/>                                        <!-- Seuil pour arrondi au contenant supérieur dans le calcul du NbBigbag = F(NbFlacons) -->
+
+            <!-- Paramètres du lecteur de fichier SAP -->
+            <param name="sap_reader.planning.path"
+                   value="${temp.home}/zc228.txt"/>                                <!-- Chemin + nom complet du fichier de planning (ZC228.txt) généré par SAP -->
+            <param name="sap_reader.planning.backup_dir"
+                   value="${project.home}/commandor1/sap"/>    <!-- Répertoire de sauvegarde des fichiers de planning (ZC228.txt) traités -->
+            <param name="sap_reader.planning.scanne_period"
+                   value="10000000"/>                                    <!-- Période en miliseconde de scanne des fichiers de planning (ZC228.txt) -->
+            <param name="sap_reader.planning.fields"
+                   value="GCAS,_,DESC_GCAS,_,_,QTE,_,HEURE_DEB,DATE_DEB,_,_,LGN_SAP,GCAS_PF,LGN_TREMIE,_,PO,_"/>        <!-- Liste des champs de l'entête des fichiers de planning (ZC228.txt) -->
+
+            <!-- Paramètres du gestionnaire RTCIS -->
+            <param name="rtcis_reader.scanne_period"
+                   value="10000"/>                                        <!-- Période en miliseconde de scanne de la base de données RTCIS -->
+            <param name="rtcis_reader.stocks_status"
+                   value="RL"/>                                            <!-- Liste des status de stocks RTCIS à prendre en compte -->
+            <param name="rtcis_reader.stocks_excludes"
+                   value="KANBAN,REFUS3,RDT 1A,RDT 1B,RDT 1C,RDT 1D,RDT 1E,RDT 1F,RDT 1G,RDT 1H,RDT 1I,RDT 1J,RDT 1K,RDT 1L,RDT 1M,RDT 1N,RDT 1O,RDT 1P,RDT 1Q,RDT 1R,RDT 1S,RDT 1T,RDT 1U,RDT 1V,RDT 1W,RDT 1X,RDT 1Y,RDT 1Z"/>                                <!-- Liste des stocks RTCIS à ne pas prendre en compte -->
+
+            <param name="rtcis_reader.stocks_tubes_status"
+                   value="RL,QU"/>                                <!-- Liste des status de stocks RTCIS à prendre en compte -->
+            <param name="rtcis_reader.stocks_tubes_excludes"
+                   value="KANBAN,LOST,REFUS2,REFUS3,RDT 1A,RDT 1B,RDT 1C,RDT 1D,RDT 1E,RDT 1F,RDT 1G,RDT 1H,RDT 1I,RDT 1J,RDT 1K,RDT 1L,RDT 1M,RDT 1N,RDT 1O,RDT 1P,RDT 1Q,RDT 1R,RDT 1S,RDT 1T,RDT 1U,RDT 1V,RDT 1W,RDT 1X,RDT 1Y,RDT 1Z"/>                                <!-- Liste des stocks RTCIS à ne pas prendre en compte -->
+
+        </params>
+    </init_task>
+
+    <!--******************** Tache a terminer à arrêt du serveur d'application **********************-->
+    <destroy_task name="RELEASE_REQUETEUR" class="com.tlgpro.jwas.wtask.WTInitRequeteur"/>
+    <destroy_task name="RELEASE_APPLI" class="procter.server.kanban.WTInitKanban"/>
+
+</web_tasks>

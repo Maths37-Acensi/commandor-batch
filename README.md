@@ -13,50 +13,61 @@ Serveurs :
 
 #### Variables d'environnement
 
-- APACHE_HOME
-- APP_HOME (C:\app)
-- CATALINA_HOME
-- JAVA_HOME
-- LOG_HOME
-- PHP_HOME
-- PROJECT_HOME
-- SSL_HOME
-- TEMP_HOME
+Création des variables suivantes :
+
+- APACHE_HOME (%APP_HOME%/apache)
+- APP_HOME (C:/app)
+- CATALINA_HOME (%APP_HOME%/tomcat)
+- JAVA_HOME (%APP_HOME%/java/jdk-21)
+- LOG_HOME (%APP_HOME%/log)
+- PHP_HOME (%APP_HOME%/php)
+- PROJECT_HOME (%APP_HOME%/project)
+- SSL_HOME (%APP_HOME%/ssl)
+- TEMP_HOME (%APP_HOME%/tmp)
+
+Modification de la variable **PATH** pour y ajouter les exécutables java et php.
 
 #### Arborescence des fichiers
 
-**%APP_HOME%** :
+Toute l'arborescence applicative est présente sous %APP_HOME%.
 
-- apache (%APACHE_HOME%)
+- apache
     - Installation Apache 2.4
     - Configuration sous **conf** :
         - httpd.conf
         - mime.types
         - extra/httpd-vhosts.conf
         - extra/httpd-proxy.conf
-- commandorv1 (à mettre sous un dossier project ?)
-    - Pour l'instant inutile
-    - Le dossier %CATALINA_HOME%\webapps\jwas\work devrait se retrouver ici
-- commandorv2 (à mettre sous un dossier project ?)
-    - Fichiers spécifiques à commandor v2
-    - Configuration sous **config**
-    - Fichiers divers sous **data**
-    - Script d'installation et sa configuration (commandorv2.exe et commandorv2.xml)
-    - Exécutable java (.jar) versionné et son lien symbolique (pg-blois-commandor-sb.jar)
 - java
     - Installation Java 21
-    - jdk21 (%JAVA_HOME%)
-- log (%LOG_HOME%)
+    - jdk21
+- log
     - Dossier racine où sont stockés les logs
     - Chaque techno / projet contient un sous dossier
-- php (%PHP_HOME%)
+- php
     - Installation PHP 5.3.28
     - Conguration dans **php.ini**
-- prime-to-commandor (à mettre sous un dossier project ?)
-    - Fichiers spécifiques à prime-to-commandor
-    - Configuration yaml
-    - Exécutable java (.jar) versionné et son lien symbolique (prime-to-commandor.jar)
-- services
+- project
+    - commandor1
+        - Fichiers spécifiques à commandor v1
+        - Configuration sous **config**
+        - Fichiers zc sous **sap**
+        - Fichiers contenant les plans calculés de l'application sous **work**
+        - Front sous **www**
+        - Exécutable java (.jar) versionné et son lien symbolique (pg-kanban.jar)
+    - commandor2
+        - Fichiers spécifiques à commandor v2
+        - Configuration sous **config**
+        - Fichiers divers sous **data**
+        - Script d'installation et sa configuration sous **install**
+        - Front sous **www**
+        - Exécutable java (.jar) versionné et son lien symbolique (pg-blois-commandor-sb.jar)
+    - prime-to-commandor
+        - Fichiers spécifiques à prime-to-commandor
+        - Configuration sous **config**
+        - Script d'installation et sa configuration sous **install**
+        - Exécutable java (.jar) versionné et son lien symbolique (prime-to-commandor.jar)
+- service
     - 1 batch par service Windows + une librairie **common.bat**
     - Arguments disponibles :
         - install
@@ -73,27 +84,54 @@ Serveurs :
         - catalina.policy
         - logging.properties
         - server.xml
-    - Installation commandor v1 sous **%CATALINA_HOME%\webapps\jwas**
-        - Configuration :
-            - META-INF\context.xml
-            - WEB-INF\web.xml (notamment le workDir qu'il faudrait déplacer)
-            - WEB-INF\classes\log4j.properties
-            - work\webtask.xml
-            - work\source.xml (appelé par le webtask.xml)
-        - Exécutable java (.jar)
-            - WEB-INF\lib\pg-kanban-1.5.2.jar
-            - WEB-INF\lib\* (dépendances)
-        - Fichiers divers sous **work**
 - www
     - Dossier racine pour Apache (configuration dans le httpd.conf)
     - Contient la partie front des applications
     - 1 dossier par application (commandor1 et commandor2)
 - service-manager.bat
-    - Gestionnaire des services Windows des différentes applications, arguments possibles :
+    - Gestionnaire des services Windows des différentes applications, actions possibles :
         - install : création
         - stop : arrêt
         - start : démarrage
         - delete : suppression
+    - Il est possible d'exécuter plusieurs actions, par exemple pour un redémarrage :
+    ``` bat
+    service-manager.bat stop start
+    ```
+
+#### Liens symboliques
+
+Afin de simplifier la maintenance, des liens symboliques sont crées pour regrouper les fichiers au même endroit.
+
+Script de suppression des liens existants :
+
+``` bat 
+del C:\app\project\commandor1\pg-kanban.jar
+del C:\app\tomcat\webapps\jwas\WEB-INF\lib\pg-kanban.jar
+del C:\app\project\commandor2\pg-blois-commandor-sb.jar
+
+del C:\app\tomcat\webapps\jwas\META-INF\context.xml
+del C:\app\tomcat\webapps\jwas\WEB-INF\web.xml
+del C:\app\tomcat\webapps\jwas\WEB-INF\classes\log4j.properties
+
+rmdir C:\app\www\commandor1
+rmdir C:\app\www\commandor2
+```
+
+Script de création des liens :
+
+``` bat
+mklink C:\app\project\commandor1\pg-kanban.jar C:\app\project\commandor1\pg-kanban-1.5.2.jar
+mklink C:\app\tomcat\webapps\jwas\WEB-INF\lib\pg-kanban.jar C:\app\project\commandor1\pg-kanban.jar
+mklink C:\app\project\commandor2\pg-blois-commandor-sb.jar C:\app\project\commandor2\pg-blois-commandor-sb-2.1.6.jar
+
+mklink C:\app\tomcat\webapps\jwas\META-INF\context.xml C:\app\project\commandor1\config\context.xml
+mklink C:\app\tomcat\webapps\jwas\WEB-INF\web.xml C:\app\project\commandor1\config\web.xml
+mklink C:\app\tomcat\webapps\jwas\WEB-INF\classes\log4j.properties C:\app\project\commandor1\config\log4j.properties
+
+mklink /D C:\app\www\commandor1 C:\app\project\commandor1\www
+mklink /D C:\app\www\commandor2 C:\app\project\commandor2\www
+```
 
 ### Serveur SQL
 
@@ -141,7 +179,7 @@ La table concernée est la table **SECU_UTILISATEUR**, l'identifiant du profil s
 
 Exemple de requête d'insertion des droits admin :
 
-``` SQL
+``` sql
 INSERT INTO secu_utilisateur (
     id_profil, 
     nom, 
@@ -173,7 +211,7 @@ l'infini (sans message d'erreur).
 
 Exemple de requête d'insertion des droits admin et PG  :
 
-``` SQL
+``` sql
 -- Création de l'utilisateur
 INSERT INTO [user] (
     email, 
@@ -230,7 +268,7 @@ VALUES (
 6. Appel du service SQL Server **pg_commandorv1.dbo.AsyncExecService**
    Attention ce service nécessite l'activation de OLE ainsi que du Broker Service SQL Server :
 
-    ``` SQL
+    ``` sql
          sp_configure 'show advanced options', 1
          GO 
          RECONFIGURE;
@@ -254,7 +292,7 @@ VALUES (
 
 1. update_prod_en_cours
 
-    ``` SQL
+    ``` sql
     CREATE PROCEDURE [dbo].[update_prod_en_cours](
         @trigPlc int, 
         @codeLigne varchar(5), 
@@ -347,7 +385,7 @@ VALUES (
 
 2. trig_ligne_sap
 
-    ``` SQL
+    ``` sql
     CREATE TRIGGER [trig_ligne_sap] 
        ON  LIGNE_SAP
        AFTER INSERT,UPDATE
@@ -393,7 +431,7 @@ VALUES (
 
 3. NotifySrvApp
 
-    ``` SQL
+    ``` sql
     CREATE procedure [dbo].[NotifySrvApp]( @event varchar(100), @eventData varchar(1000))
     As
     declare @url varchar(1000),
@@ -428,7 +466,7 @@ VALUES (
 
 4. usp_AsyncExecInvoke
 
-    ``` SQL
+    ``` sql
     create procedure [usp_AsyncExecInvoke]
     @procedureName sysname
     , @p1 sql_variant = NULL, @n1 sysname = NULL
@@ -503,7 +541,7 @@ VALUES (
 
 5. init_database
 
-    ``` SQL
+    ``` sql
     CREATE procedure init_database( @trig int)
     As
     
@@ -529,7 +567,7 @@ VALUES (
 
 6. usp_AsyncExecActivated
 
-    ``` SQL
+    ``` sql
     create procedure usp_AsyncExecActivated
     as
     begin
@@ -655,7 +693,7 @@ VALUES (
 
 7. usp_procedureInvokeHelper
 
-    ``` SQL
+    ``` sql
     create procedure [usp_procedureInvokeHelper] (@x xml)
     as
     begin
@@ -757,7 +795,7 @@ VALUES (
 
 8. log
 
-    ``` SQL
+    ``` sql
     CREATE PROCEDURE log(@niveau varchar(10), @categorie varchar(50), @source varchar(1000), @message varchar(MAX), @info varchar(MAX))
     AS
     BEGIN
@@ -784,7 +822,7 @@ Prérequis : mise à jour de **pg_commandorv1.dbo.ligne_sap** qu'il utilise.
 
 1. synchroCompteurs
 
-    ``` SQL
+    ``` sql
     -- =============================================
     -- Author:		GBR. TLG Pro
     -- Create date: 2020-01-xx
@@ -1105,7 +1143,7 @@ Prérequis : mise à jour de **pg_commandorv1.dbo.ligne_sap** qu'il utilise.
 
 2. vLigneSapCommandorV1
 
-    ``` SQL
+    ``` sql
     -- dbo.vLigneSapCommandorV1 source
     
     ALTER VIEW dbo.vLigneSapCommandorV1
@@ -1143,24 +1181,4 @@ TODO
 J'ai ajouté le certicat Root présent sous C:\domaine\Certificat dans le cacerts du jdk (keytool -importcert -file "PG
 Root CA 2.cer" -cacerts -alias pg-root-ca).
 
--- Delete
-del C:\app\project\commandor1\pg-kanban.jar
-del C:\app\tomcat\webapps\jwas\WEB-INF\lib\pg-kanban.jar
-del C:\app\project\commandor2\pg-blois-commandor-sb.jar
 
-del C:\app\tomcat\webapps\jwas\META-INF\context.xml
-del C:\app\tomcat\webapps\jwas\WEB-INF\web.xml
-del C:\app\tomcat\webapps\jwas\WEB-INF\classes\log4j.properties
-
--- Create
-mklink C:\app\project\commandor1\pg-kanban.jar C:\app\project\commandor1\pg-kanban-1.5.2.jar
-mklink C:\app\tomcat\webapps\jwas\WEB-INF\lib\pg-kanban.jar C:\app\project\commandor1\pg-kanban.jar
-mklink C:\app\project\commandor2\pg-blois-commandor-sb.jar C:\app\project\commandor2\pg-blois-commandor-sb-2.1.6.jar
-
-mklink C:\app\tomcat\webapps\jwas\META-INF\context.xml C:\app\project\commandor1\config\context.xml
-mklink C:\app\tomcat\webapps\jwas\WEB-INF\web.xml C:\app\project\commandor1\config\web.xml
-mklink C:\app\tomcat\webapps\jwas\WEB-INF\classes\log4j.properties C:\app\project\commandor1\config\log4j.properties
-
-php.ini => ne veut pas de %PHP_HOME%
-
-commandor v2 : avec WinSW pas trouvé comment renseigner les var d'env

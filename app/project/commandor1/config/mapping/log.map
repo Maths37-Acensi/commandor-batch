@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<object-mapping>
+
+	<object name="LogConnexion" class="com.tlgpro.jwascore.log.LogConnexion" table="param.LOG_CONNEXION">
+		<field name="id" type="int"	persistent="1"/>
+		<field name="horodate" type="Date" persistent="1"/>
+		<field name="idUtilisateur" type="int"	persistent="1" />
+		<field name="action" type="String"	persistent="1"/>
+	</object>
+
+	<object name="Logapplication" class="com.tlgpro.persistence.util.GenericObject" table="param.log_application">
+		<field name="id" type="int"	persistent="1"/>
+		<field name="horodate" type="Date"	persistent="1" def-value=""/>
+		<field name="niveau" type="String"	persistent="1" def-value=""/>
+		<field name="message" type="String"	persistent="1" def-value=""/>
+		<field name="source" type="String"	persistent="1" def-value=""/>
+		<field name="thread" type="String"	persistent="1" def-value=""/>
+		<field name="trace" type="String"	persistent="1" def-value=""/>
+	</object>	
+
+	<object name="LogParam" class="com.tlgpro.jwascore.log.LogParam" table="param.LOG_MODIF_PARAM">
+		<field name="id" type="int"	persistent="1"/>
+		<field name="idUtilisateur" type="int"	persistent="1"/>
+		<field name="nomUtilisateur" type="String" persistent="1" read-only="1">
+			<column name="SECU_UTILISATEUR.nom"/>
+		</field>
+		<field name="prenomUtilisateur" type="String" persistent="1" read-only="1">
+			<column name="SECU_UTILISATEUR.prenom"/>
+		</field>
+		<field name="horodate" type="Date"	persistent="1"/>
+		<field name="entite" type="String" persistent="1"/>
+		<field name="idEntite" type="int"	persistent="1">
+			<column name="id_entite"/>
+		</field>
+		<field name="isNew" type="int"	persistent="1">
+			<column name="nouveau"/>
+		</field>
+		<field name="isDeleted" type="int"	persistent="1">
+			<column name="suppression"/>
+		</field>
+		<field name="isModified" type="int"	persistent="1">
+			<column name="modification"/>
+		</field>
+		
+		<field name="dataXml" type="String"	persistent="1"/>
+		<field name="dataJson" type="String"	persistent="0"/>
+		<field name="stackTrace" type="String"	persistent="1"/>
+		<field name="nomIHM" type="String"	persistent="1"/>
+	</object>
+
+	<!--******** CLASSE LogKanban ********-->
+	<object name="LogKanban" class="procter.server.kanban.obj.LogKanban" table="param.LOG_KANBAN">
+		<field name="id" 			type="int" 		def-value="" 	persistent="1" />
+		<field name="utilisateur" 	type="String" 	def-value="" 	persistent="1" />
+		<field name="horodate" 		type="Date" 	def-value="" 	persistent="1" />
+		<field name="ligne" 		type="String" 	def-value="" 	persistent="1" />
+		<field name="action" 		type="String" 	def-value="" 	persistent="1" />
+		<field name="message" 		type="String" 	def-value="" 	persistent="1" />
+	</object>
+
+</object-mapping>

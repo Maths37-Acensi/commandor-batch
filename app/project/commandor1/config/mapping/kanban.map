@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<object-mapping>
+
+	<!--******** CLASSE ContainerType ******** -->
+	<object name="ContainerType" class="procter.server.kanban.obj.ContainerType" table="param.CONTAINER_TYPE">
+		<field name="id" type="int" def-value="" persistent="1" />
+		<field name="code" type="String" def-value="" persistent="1" />
+		<field name="libelle" type="String" def-value="" persistent="1" />
+		<field name="nbMaxContenant" type="int" def-value="" persistent="1" />
+	</object>
+
+	<object name="LigneTremie" class="procter.server.kanban.obj.LigneTremie" table="param.LIGNE_TREMIE">
+		<params>
+			<param name="ObjCaptionFieldName" value="libelle" />
+			<param name="SuffixOnCloneObj" value=" Copie" />
+			<param name="ApplyPrefixOnCloneObj" value="1" />
+			<param name="Log.HMIName" value="Ligne trémie" />
+		</params>
+		<field name="id" type="int" def-value="" persistent="1" />
+		<field name="code" type="String" def-value="" persistent="1" />
+		<field name="libelle" type="String" def-value="Nouvelle ligne trémie" persistent="1" />
+		<field name="sensChargement" type="int" def-value="" persistent="1" />
+		<field name="affichageX" type="int" def-value="" persistent="1" />
+		<field name="affichageY" type="int" def-value="" persistent="1" />
+		<field name="active" type="int" def-value="" persistent="1" />
+		<field name="seuilDdeEnCours" type="int" def-value="0" persistent="1" />
+		<field name="lignesSAP" type="Map" key-map="id" key-map-case="" def-value="" persistent="1">
+			<object name="LigneSAP" relation="" />
+		</field>
+		<field name="seuilsCmde" type="Map" key-map="code" key-map-case="lower_case" def-value="" persistent="1">
+			<object name="Seuil" relation="" />
+		</field>
+	</object>
+
+	<object name="LigneSAP" class="procter.server.kanban.obj.LigneSAP" table="param.LIGNE_SAP">
+		<params>
+			<param name="ObjCaptionFieldName" value="libelle" />
+			<param name="SuffixOnCloneObj" value=" Copie" />
+			<param name="ApplyPrefixOnCloneObj" value="1" />
+			<param name="Log.HMIName" value="Ligne SAP" />
+		</params>
+		<field name="id" type="int" def-value="" persistent="1" />
+		<field name="idLigneTremie" type="int" def-value="" persistent="1" />
+		<field name="libelle" type="String" def-value="Nouvelle ligne SAP" persistent="1" />
+		<field name="codeSAP" type="String" def-value="" persistent="1" />
+		<field name="codeRTCIS" type="String" def-value="" persistent="1" />
+		<field name="poPacking" type="String" def-value="" persistent="1" />
+		<field name="qteFlacon" type="int" def-value="" persistent="1" />
+		<field name="horodate" type="Date" def-value="" persistent="1" />
+		<field name="active" type="int" def-value="1" persistent="1" />
+	</object>
+
+	<!--******** CLASSE NavetteStatut ******** -->
+	<object name="NavetteStatut" class="procter.server.kanban.obj.NavetteStatut" table="param.NAVETTE_STATUT">
+		<field name="id" type="int" def-value="" persistent="1" />
+		<field name="libelle" type="String" def-value="" persistent="1" />
+		<field name="couleur" type="String" def-value="" persistent="1" />
+	</object>
+
+	<!--******** CLASSE Quai ******** -->
+	<object name="Quai" class="procter.server.kanban.obj.Quai" table="param.QUAI">
+		<field name="id" type="int" def-value="" persistent="1" />
+		<field name="libelle" type="String" def-value="" persistent="1" />
+		<field name="numero" type="int" def-value="" persistent="1" />
+		<field name="codeRTCIS" type="String" def-value="" persistent="1" />
+	</object>
+
+	<!--******** CLASSE Navette ******** -->
+	<object name="Navette" class="procter.server.kanban.obj.Navette" table="param.NAVETTE">
+		<field name="id" type="int" def-value="" persistent="1" />
+		<field name="idLigneTremie" type="int" def-value="" persistent="1" />
+		<field name="idQuai" type="int" def-value="" persistent="1" />
+		<field name="idStatut" type="int" def-value="" persistent="1" />
+		<field name="horodate" type="Date" def-value="" persistent="1" />
+		<field name="numero" type="int" def-value="" persistent="1" />
+		<field name="version" type="int" def-value="1" persistent="1" />
+		<field name="modifPG" type="int" def-value="" persistent="1" />
+		<field name="modifFournisseur" type="int" def-value="" persistent="1" />
+		<field name="createurModificateur" type="String" def-value="" persistent="1" />
+		<field name="numBL" type="String" def-value="" persistent="1" />
+		<field name="archive" type="int" def-value="" persistent="1" />
+		<field name="libQuai" type="String" def-value="" persistent="1" read-only="1">
+			<column name="QUAI.libelle" />
+		</field>
+		<field name="contenu" type="Collection" def-value="" persistent="1">
+			<object name="NavetteContenu" relation="" />
+		</field>
+	</object>
+
+	<!--******** CLASSE NavetteHisto ******** -->
+	<object name="NavetteHisto" class="procter.server.kanban.obj.NavetteHisto" table="param.NAVETTE_HISTO">
+		<field name="id" type="int" def-value="" persistent="1" />
+		<field name="idLigneTremie" type="int" def-value="" persistent="1" />
+		<field name="idQuai" type="int" def-value="" persistent="1" />
+		<field name="idStatut" type="int" def-value="" persistent="1" />
+		<field name="horodate" type="Date" def-value="" persistent="1" />
+		<field name="utilisateur" type="String" def-value="" persistent="1" />
+		<field name="horoCreat" type="Date" def-value="" persistent="1" />
+		<field name="numero" type="int" def-value="" persistent="1" />
+		<field name="version" type="int" def-value="1" persistent="1" />
+		<field name="modifPG" type="int" def-value="" persistent="1" />
+		<field name="modifFournisseur" type="int" def-value="" persistent="1" />
+		<field name="createurModificateur" type="String" def-value="" persistent="1" />
+		<field name="numBL" type="String" def-value="" persistent="1" />
+		<field name="archive" type="int" def-value="" persistent="1" />
+	</object>
+
+	<!--******** CLASSE NavetteContenu ******** -->
+	<object name="NavetteContenu" class="procter.server.kanban.obj.NavetteContenu" table="param.NAVETTE_CONTENU">
+		<field name="id" type="int" def-value="" persistent="1" />
+		<field name="idNavette" type="int" def-value="" persistent="1" />
+		<field name="idGcas" type="int" def-value="" persistent="1" />
+		<field name="placeNavette" type="int" def-value="" persistent="1" />
+		<field name="qteCommande" type="int" def-value="" persistent="1" />
+		<field name="qteRestante" type="int" def-value="" persistent="1" />
+		<field name="qteCmdeContenant" type="String" def-value="" persistent="1" />
+		<field name="qteRestContenant" type="String" def-value="" persistent="1" />
+		<field name="horodate" type="Date" def-value="" persistent="1" />
+		<field name="gcasInstance" type="Object" def-value="" persistent="1" read-only="1">
+			<object name="GcasParam" relation="" />
+		</field>
+		<field name="estPremiereCommande" type="int" def-value="" persistent="1" />
+	</object>
+
+	<!--******** CLASSE PlanSap ******** -->
+	<object name="PlanSap" class="procter.server.kanban.obj.PlanSap" table="param.PLAN_SAP">
+		<field name="id" type="int" def-value="" persistent="1" />
+		<field name="idGcasComposant" type="int" def-value="" persistent="1" />
+		<field name="idLigneSap" type="int" def-value="" persistent="1" />
+		<field name="poPacking" type="String" def-value="" persistent="1" />
+		<field name="horoDebut" type="Date" def-value="" persistent="1" />
+		<field name="gcasPF" type="String" def-value="" persistent="1" />
+		<field name="gcasCompSap" type="String" def-value="" persistent="1" />
+		<field name="qtePlanif" type="int" def-value="" persistent="1" />
+		<field name="codeMaterial" type="String" def-value="" persistent="1" read-only="1">
+			<column name="MATERIAL_TYPE.code" />
+		</field>
+		<field name="gcasInstance" type="Object" def-value="" persistent="1" read-only="1">
+			<object name="GcasParam" relation="" />
+		</field>
+	</object>
+
+	<!--******** CLASSE PlanSapHisto ******** -->
+	<object name="PlanSapHisto" class="procter.server.kanban.obj.PlanSapHisto" table="param.PLAN_SAP_HISTO">
+		<field name="id" type="int" def-value="" persistent="1" />
+		<field name="horodate" type="Date" def-value="" persistent="1" />
+		<field name="fichier" type="String" def-value="" persistent="1" />
+		<field name="message" type="String" def-value="" persistent="1" />
+		<field name="error" type="int" def-value="" persistent="1" />
+	</object>
+
+	<!--******** CLASSE GcasParam ******** -->
+	<object name="GcasParam" class="procter.server.kanban.obj.GcasParam" table="param.GCAS_PARAMETRAGE">
+		<field name="id" type="int" def-value="" persistent="1" />
+		<field name="idFournisseur" type="int" def-value="" persistent="1" />
+		<field name="idMaterialType" type="int" def-value="" persistent="1" />
+		<field name="idContainerType" type="int" def-value="" persistent="1" />
+		<field name="gcas" type="String" def-value="" persistent="1" />
+		<field name="libelle" type="String" def-value="" persistent="1" />
+		<field name="qteContainer" type="int" def-value="" persistent="1" />
+		<field name="dejaCommande" type="int" def-value="" persistent="1" />
+		
+		
+		<field name="codeContainer" type="String" def-value="" persistent="1" read-only="1">
+			<column name="CONTAINER_TYPE.code" />
+		</field>
+		<field name="codeMaterial" type="String" def-value="" persistent="1" read-only="1">
+			<column name="MATERIAL_TYPE.code" />
+		</field>
+		<field name="fournisseur" type="String" def-value="" persistent="1" read-only="1">
+			<column name="FOURNISSEUR.libelle" />
+		</field>
+		<field name="fournisseurActif" type="int" def-value="" persistent="1" read-only="1">
+			<column name="FOURNISSEUR.actif" />
+		</field>
+		<field name="fournisseurCode" type="String" def-value="" persistent="1" read-only="1">
+			<column name="FOURNISSEUR.code" />
+		</field>
+		<field name="nbMaxContenant" type="int" def-value="" persistent="1" read-only="1">
+			<column name="CONTAINER_TYPE.nbMaxContenant" />
+		</field>
+		
+	</object>
+
+	<!--******** CLASSE RtcisReservationStock ******** -->
+	<object name="RtcisReservationStock" class="procter.server.kanban.obj.RtcisReservationStock" table="param.RTCIS_RESERVATION_STOCK">
+		<field name="id" type="int" def-value="" persistent="1" />
+		<field name="idLigneTremie" type="int" def-value="" persistent="1" />
+		<field name="idGcas" type="int" def-value="" persistent="1" />
+		<field name="horodate" type="Date" def-value="" persistent="1" />
+		<field name="ulid" type="String" def-value="" persistent="1" />
+		<field name="qteStock" type="int" def-value="" persistent="1" />
+		<field name="stock" type="String" def-value="" persistent="1" />
+		<field name="poPacking" type="String" def-value="" persistent="1" />
+		<field name="destock" type="int" def-value="" persistent="1" />
+		<field name="gcas" type="String" def-value="" persistent="1" read-only="1">
+			<column name="GCAS_PARAMETRAGE.gcas" />
+		</field>
+	</object>
+
+	<!--******** CLASSE RtcisStockNavetteView ******** -->
+	<object name="RtcisStockNavetteView" class="procter.server.kanban.obj.RtcisStockNavetteView" table="param.RTCIS_STOCK_NAVETTE_VIEW">
+		<field name="id" type="String" def-value="" persistent="1" />
+		<field name="bolNum" type="String" def-value="" persistent="1" />
+		<field name="locaTn" type="String" def-value="" persistent="1" />
+		<field name="sumOfActQty" type="double" def-value="" persistent="1" />
+		<field name="trlNum" type="String" def-value="" persistent="1" />
+		<field name="rrNumb" type="String" def-value="" persistent="1" />
+		<field name="itmCod" type="String" def-value="" persistent="1" />
+		<field name="expQty" type="double" def-value="" persistent="1" />
+		<field name="itmDsc" type="String" def-value="" persistent="1" />
+	</object>
+
+	<!--******** CLASSE RtcisStockView ******** -->
+	<object name="RtcisStockView" class="procter.server.kanban.obj.RtcisStockView" table="param.RTCIS_STOCK_VIEW">
+		<field name="ulid" type="String" def-value="" persistent="1" />
+		<field name="locaTn" type="String" def-value="" persistent="1" />
+		<field name="nbDays" type="double" def-value="" persistent="1" />
+		<field name="itmCod" type="String" def-value="" persistent="1" />
+		<field name="itmDsc" type="String" def-value="" persistent="1" />
+		<field name="ctlGrp" type="String" def-value="" persistent="1" />
+		<field name="qaStat" type="String" def-value="" persistent="1" />
+		<field name="casQty" type="double" def-value="" persistent="1" />
+		<field name="vendorLot" type="String" def-value="" persistent="1" />
+		<field name="idLigneTremie" type="int" def-value="" persistent="1" read-only="1">
+			<column name="RTCIS_RESERVATION_STOCK.idLigneTremie" />
+		</field>
+	</object>
+
+	<!--******** CLASSE Seuil ******** -->
+	<object name="Seuil" class="procter.server.kanban.obj.Seuil" table="param.SEUIL">
+		<params>
+			<param name="Log.HMIName" value="Seuil" />
+		</params>
+		<field name="id" type="int" def-value="" persistent="1" />
+		<field name="idLigneTremie" type="int" def-value="" persistent="1" />
+		<field name="idMaterialType" type="int" def-value="" persistent="1" />
+		<field name="seuil" type="int" def-value="" persistent="1" />
+		<field name="code" type="String" def-value="" persistent="1" read-only="1">
+			<column name="MATERIAL_TYPE.code" />
+		</field>
+	</object>
+
+	<!--******** CLASSE MailNotif ******** -->
+	<object name="MailNotif" class="procter.server.kanban.obj.MailNotif" table="param.SYS_MAIL_NOTIF">
+		<field name="id" type="int" def-value="" persistent="1" />
+		<field name="categorie" type="String" def-value="" persistent="1" />
+		<field name="value" type="String" def-value="" persistent="1" />
+	</object>
+
+	<!--******** CLASSE NavetteCalculHisto ******** -->
+	<object name="NavetteCalculHisto" class="procter.server.kanban.obj.NavetteCalculHisto" table="param.NAVETTE_CALCUL_HISTO">
+		<field name="id" type="int" def-value="" persistent="1" />
+		<field name="idGcas" type="int" def-value="" persistent="1" />
+		<field name="idNavette" type="int" def-value="" persistent="1" />
+		<field name="horodate" type="Date" def-value="" persistent="1" />
+		<field name="numero" type="int" def-value="" persistent="1" />
+		<field name="resultat" type="String" def-value="" persistent="1" />
+	</object>
+
+	
+	<object name="ParamCalculTubes" class="procter.server.kanban.tubescatroux.ParamCalculTubes" table="param.TUBES_CALCULS_PARAMS">
+		<field name="id" type="int" def-value="" persistent="1" />
+		<field name="dateButoir" type="Date" def-value="" persistent="1" />
+		<field name="idLigne" type="int" def-value="" persistent="1" />		
+	</object>
+</object-mapping>
