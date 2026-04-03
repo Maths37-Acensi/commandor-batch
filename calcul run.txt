@@ -1,0 +1,95 @@
+numberOfPastDaysForComputation => 45
+numberOfFutureDaysForComputation => 10
+nbMinutesAmorcage => 30
+nbHeuresMaxCalcul => 96
+
+tache => Toutes les 30 minutes
+Création d'un thread "navComput" + itération
+Appelé également dans les cas suivants : 
+- Gestion d'un arrêt
+- Saisi d'un encours
+- Gestion d'un forçage
+- Gestion d'une navette
+- Gestion du planning
+- Saisie d'un besoin complémentaire
+
+cleanOldData => Toutes les 10 minutes (sachatn qu'on garde 1 an de données, est-ce vraiment utile ?)
+
+fullCompute : les logs donnent 1 exécution toutes les 30s
+
+Calcul des runs : 
+
+*** NavetteCompute.fullCompute ***
+¤¤¤ "Démarrage calcul"
+- Récupération des déchargements associés à une navette
+	RTCIS_DETAIL_DECHARG_NAVETTE_WITH_NAVETTE_VIEW / lstDecharges
+	=> regroupé par SSCC, est-ce normal de pouvoir en avoir plusieurs ? Quoiqu'il arrive on prend le 1er les autres sont ignorés
+¤¤¤ "Après rtcisDetailDechargementNavetteViewService"
+- Récupération des commandes
+	RTCIS_EXPECTED_WITH_COMPOSANT_VIEW / mapQtesParBL
+¤¤¤ "Après rtcisExpectedViewRepository.findAll()"
+- Appel méthode *** ConteneurConsommeServiceImpl.syncRTCIS ***
+	- Récupération des déchargements associés à couple ligne / ligne composant
+		RTCIS_CONSUMED_WITH_LINE_VIEW 
+		=> /!\ si 2 deux pour le même composant, on a 2x la ligne
+	- Récupération du stock : RTCIS_STOCK_WITH_COMPO_VIEW
+	- Récupération des conteneurs consommés (ConteneurConsomme)
+		=> On regroupe par SSCC
+		1- Si SSCC dans ConteneurConsomme et dans RTCIS_STOCK
+			=> On périme le ConteneurConsomme
+		2- Si SSCC dans ConteneurConsomme et dans RTCIS_DETAIL_DECHARG_NAVETTE, avec RTCIS_DETAIL_DECHARG_NAVETTE.SYSDAT > ConteneurConsomme.horoDepose 
+			=> On supprime le ConteneurConsomme
+		3 - Création d'un nouveau ConteneurConsomme avec les données à jour (dans tous les cas)
+¤¤¤ "Après syncRTCIS"
+- Appel méthode *** PlanningCompute.refreshPlanning(45, 10)
+	- On récupère le planning avec 45 jours dans le passé et 10 jour dans le futur pour les différentes lignes avec les arrêts
+¤¤¤ "Après getPlanningParDates"
+	- Pour chaque PoPackingComposant (filtré sur les bouteilles /!\ Dans le code il est renseigné l'id en dur => 1 /!\) : 
+		- Si date fin api non renseigné : 
+			- Date début estimée renseignée avec la date fin prévue estimée du précédent
+			- Calcul fin estimée : COALESCE (Date début estimée, Date courante) + ((qtePrevue - qteProduite) / cadenceProdLigne) * 60;
+			- Si ArretLigne, on ajoute la durée de l'arrêt
+		- Sinon date fin api
+¤¤¤ "Après compute(planning)"
+¤¤¤ "Après refreshPlanning"
+- Récupération des Navette avec Navette.idCluster IS NULL
+	=> Inutile ? Ca n'existe pas
+- Récupération des FournisseurPanier avec FournisseurPanier.jourHeureCommande IS NOT NULL
+	=> Inutile ? Ca n'existe pas
+- Appelle méthode *** NavetteCompute.compute(lstDecharges, mapQtesParBL) ***
+¤¤¤ "----------------- Calcul navettes  --------------- début"
+	- Récupération de tous les ArretLigne /!\ Table non purgée !
+	- Filter sur estArretTeamNeeded IS NULL OR estArretTeamNeeded = 0
+	- Regroupement par ligne
+¤¤¤ "Conteneurs non affectés à des lignes (affectables aux lignes du cluster)"
+	- Création de "ConteneurRTCIS" à partir de : 
+		- RTCIS_STOCK_WITH_COMPO_VIEW
+		- ConteneurNavette filtré sur horoConsoEstimee > Maintenant - 1h
+		- 1 conteneur par SSCC
+		- Filtre sur les stocks non affectés à une ligne
+	- Appelle méthode *** NavetteServiceImpl.checkConteneursDecharges(cluster, lstDecharges, mapQtesParBL) ***
+		
+
+
+
+------------------
+                this.postCompute();
+                this.lastComputedPlanning = this.workPlanning;
+                this.newPlanningPublisher.publish(this.lastComputedPlanning);
+                this.newNavettesPublisher.publish(this.getAllNavettes(this.lastComputedPlanning));
+            }
+        } catch (LigneComposantNotFoundException e) {
+            this.mailService.sendMail(this.emailsCommandeErreurs, "Erreur masterdata ligne/composant", e.getLocalizedMessage());
+            log.error(e.getLocalizedMessage(), e);
+            throw e;
+        } catch (Throwable e) {
+            this.mailService.envoieMailDebug("Erreur dans le fullCompute", e);
+            log.error(e.getLocalizedMessage(), e);
+            throw new RuntimeException(e);
+        } finally {
+            unlock("NavetteCompute.fullCompute() ", verrouNavette);
+            this.calculHappenedPublisher.publish();
+        }
+
+        log.info("------------Fin compute---------------- Temps : {}s", Duration.between(debut, Instant.now()).toSeconds());
+        getLogcompute().warn(getMapMessageCalcul("NavettesCompute", "Fin calcul %ds", Duration.between(debut, Instant.now()).toSeconds()));
