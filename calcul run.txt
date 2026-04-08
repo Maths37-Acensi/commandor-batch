@@ -43,6 +43,7 @@ Calcul des runs :
 ¤¤¤ "Après syncRTCIS"
 - Appel méthode *** PlanningCompute.refreshPlanning(45, 10)
 	- On récupère le planning avec 45 jours dans le passé et 10 jour dans le futur pour les différentes lignes avec les arrêts
+- Résultat sauvegardé dans la variable workPlanning
 ¤¤¤ "Après getPlanningParDates"
 	- Pour chaque PoPackingComposant (filtré sur les bouteilles /!\ Dans le code il est renseigné l'id en dur => 1 /!\) : 
 		- Si date fin api non renseigné : 
@@ -57,39 +58,246 @@ Calcul des runs :
 - Récupération des FournisseurPanier avec FournisseurPanier.jourHeureCommande IS NOT NULL
 	=> Inutile ? Ca n'existe pas
 - Appelle méthode *** NavetteCompute.compute(lstDecharges, mapQtesParBL) ***
-¤¤¤ "----------------- Calcul navettes  --------------- début"
+    ¤¤¤ "----------------- Calcul navettes  --------------- début"
 	- Récupération de tous les ArretLigne /!\ Table non purgée !
 	- Filter sur estArretTeamNeeded IS NULL OR estArretTeamNeeded = 0
 	- Regroupement par ligne
-¤¤¤ "Conteneurs non affectés à des lignes (affectables aux lignes du cluster)"
+    ¤¤¤ "Conteneurs non affectés à des lignes (affectables aux lignes du cluster)"
 	- Création de "ConteneurRTCIS" à partir de : 
 		- RTCIS_STOCK_WITH_COMPO_VIEW
 		- ConteneurNavette filtré sur horoConsoEstimee > Maintenant - 1h
 		- 1 conteneur par SSCC
 		- Filtre sur les stocks non affectés à une ligne
-	- Appelle méthode *** NavetteServiceImpl.checkConteneursDecharges(cluster, lstDecharges, mapQtesParBL) ***
-		
-
-
-
-------------------
-                this.postCompute();
-                this.lastComputedPlanning = this.workPlanning;
-                this.newPlanningPublisher.publish(this.lastComputedPlanning);
-                this.newNavettesPublisher.publish(this.getAllNavettes(this.lastComputedPlanning));
-            }
-        } catch (LigneComposantNotFoundException e) {
-            this.mailService.sendMail(this.emailsCommandeErreurs, "Erreur masterdata ligne/composant", e.getLocalizedMessage());
-            log.error(e.getLocalizedMessage(), e);
-            throw e;
-        } catch (Throwable e) {
-            this.mailService.envoieMailDebug("Erreur dans le fullCompute", e);
-            log.error(e.getLocalizedMessage(), e);
-            throw new RuntimeException(e);
-        } finally {
-            unlock("NavetteCompute.fullCompute() ", verrouNavette);
-            this.calculHappenedPublisher.publish();
-        }
-
-        log.info("------------Fin compute---------------- Temps : {}s", Duration.between(debut, Instant.now()).toSeconds());
-        getLogcompute().warn(getMapMessageCalcul("NavettesCompute", "Fin calcul %ds", Duration.between(debut, Instant.now()).toSeconds()));
+    - Pour chaque cluster :
+        - Appelle méthode *** NavetteServiceImpl.checkConteneursDecharges(cluster, lstDecharges, mapQtesParBL) ***
+            µµµ "checkConteneursDecharges\n"
+            - On parcours la liste des navettes du cluster :
+                - Si lstDecharges contient une des navettes
+                    - Copie de la liste vers lstDetailsDechargLocal
+                        - On supprime de cette liste les déchargements correspondants à la liste des navettes / même SSCC
+                        µµµ "  - Conteneur déjà connu : Navette %s. SSCC %s. GCAS %s\n"
+                    - On parcours la liste lstDetailsDechargLocal
+                        - Pour la navette en cours :
+                            - Filtre sur un conteneur sans SSCC
+                            - Filtre sur même GCAS ou substitut
+                        - Si conteneur non trouvé
+                            µµµ "  - ERREUR conteneur déchargé non affectable à une navette : Navette %s. SSCC %s. GCAS %s\n"
+                        - Sinon
+                            - Ajout de la navette à la liste des navettes à sauvegarder
+                            - On renseigne le SSCC sur le conteneur
+                            - On renseigne le statut du conteneur à décharger
+                            - Si le conteneur n'a pas le même GCAS qui celui qui est déchargé on recherche le substitut au conteneur
+                            µµµ "  - Conteneur affectable à une navette : Navette %s. SSCC %s. GCAS %s. Position conteneur %s.\n"
+                    - Si un conteneur n'a pas été trouvé
+                        ¤¤¤ "La navette {} {} contient des conteneurs non commandés."
+                        - Pour chaque conteneur non trouvé
+                            ¤¤¤ "Conteneur RTCIS déchargé {}"
+                - Si
+                    - navette entièrement déchargée
+                    - et
+                        - statut non terminé
+                        - ou
+                        - si numBl pas contenu dans les commandes (mapQtesParBL) et statut à quai
+                    µµµ "** INFO : Navette %s. Complètement déchargée.\n"
+                    - Suppression de la navette de la liste des navettes à sauvegarder
+                    - On termine cette navette :
+                        ¤¤¤ "Terminer  de {}." (debug)
+                        - On renseigne son statut à terminé
+                        - Tous les conteneurs de la navette sont passés en statut terminé
+                        - Sauvegarde des changements en base
+                        ¤¤¤ "Navette en entrée {}. Navette enregistrée {}" (debug)
+                        - Pour les navettes avec un forçage renseigné :
+                            - On archive les conteneurs de navette ayant un statut terminé ou annulé
+                        - Création d'un UserAction (db logs)
+                            - "NAVETTE. TERMINER"
+            ¤¤¤ "Récap conteneurs déchargés" + prépa µµµ
+            - Sauvegarde des navettes encore présentes dans la liste des navettes à sauvegarder
+        - Appelle méthode *** initMapLigneConteneursNavettes(cluster, mapLignesConteneursNavettes) *** // mapLignesConteneursNavettes vide au début
+            - On parcours les lignes du cluster (au nombre de 1 donc)
+                - On ajoute à mapLignesConteneursNavettes le couple
+                    - Ligne
+                    - Liste des ConteneurNavette actifs + Conteneurs hors cluster
+                        - On réinitialise la date de conso estimée (null)
+                        ¤¤¤ "Init. Dans Navette"
+        - Appelle méthode *** initBesoins(cluster, mapArretsParLigne) ***
+            ¤¤¤ "Création nouveau conteneur de RunBesoins " (debug)
+            - Ajoute un nouvelle élément à mapCurrentBesoinsManager avec le cluster en cours
+            - Parcours du planning pour le cluster en cours
+                - runBesoinMoins1 = null
+                - runBesoinMoins2 = null
+                - Récupération de la liste des runs en cours ou futurs
+                - Pour chaque run
+                    - On récupère le fournisseur associé au couple ligne / composant
+                    - Si pas de fournisseur trouvé
+                        ¤¤¤ "Le composant %s sur la ligne %s n'a pas de fournisseur JIT"
+                    - Création d'un RunBesoin :
+                        1- run = Run en cours
+                        2- lstArretsPourLigne = Liste des arrêts prévus pour la ligne en cours
+                        3- runBesoinMoins1 = runBesoinMoins1
+                        4- runBesoinMoins2 = runBesoinMoins2
+                        5- delaiAvantCommande = fournisseur non trouvé ? 180 : délai de commande du fournisseur
+                        6- nbMinutesAmorcage = 30
+                        *- Initialisation setConteneursRtcisVentiles
+                        *- Initialisation setConteneursNavetteVentiles
+                        *- annule = false
+                        *- qteBesoinReelle = 0
+                        - Appel de la méthode *** RunBesoin.evalBesoin(lstArretsPourLigne, "Init") ***
+                            - qteBesoinReelle =
+                                - Si annule => 0
+                                - Sinon run.getQuantiteBesoinRestanteAvecComplements() - runBesoin.getQuantiteAffecteeTotale() - run.getEncoursLigne()
+                                    - run.getQuantiteBesoinRestanteAvecComplements() = getQuantiteBesoinRestante() + getQuantiteBesoinComplementaire()
+                                    - getQuantiteBesoinRestante() = getQuantiteProdRestante() * LigneComposant.pertes
+                                    - getQuantiteProdRestante() = Math.max(getQuantiteProductionTotale() - getQuantiteProduite(), 0)
+                                    - getQuantiteProductionTotale() :
+                                        - quantité = 0
+                                        - Parcours des PoPackingComposant (compteurs)
+                                            - Si terminé : quantité += COALESCE(quantité produite, 0)
+                                            - Sinon :
+                                                - quantité += COALESCE(quantité prévue, 0)
+                                                - quantité += COALESCE(quantité complémentaire, 0)
+                                        - Retourne quantité
+                                    - getQuantiteProduite() :
+                                        - quantité = 0
+                                        - Parcours des PoPackingComposant (compteurs)
+                                            - quantité += COALESCE(quantité produite, 0)
+                                            - quantité += COALESCE(quantité complémentaire, 0)
+                                        - Retourne quantité
+                                    - getQuantiteBesoinComplementaire() :
+                                        - quantité = 0
+                                        - Parcours des PoPackingComposant (compteurs)
+                                            - quantité += COALESCE(PoPackingComposant.quantiteBesoinComplementaire, 0) / getCoefPerte()
+                                    - runBesoin.getQuantiteAffecteeTotale() = runBesoin.getQuantiteAffecteeNavettesTotale() + runBesoin.getQuantiteAffecteeRtcisTotale()
+                                    - runBesoin.getQuantiteAffecteeNavettesTotale() :
+                                        - Parcours de la liste setConteneursNavetteVentiles
+                                        - Somme des ConteneurNavette.qteComposants
+                                    - runBesoin.getQuantiteAffecteeRtcisTotale() :
+                                        - Parcours de la liste setConteneursRtcisVentiles
+                                        - Somme desConteneurRTCIS.qteComposants
+                                    - run.getEncoursLigne() = Math.max(0, run.quantiteDeposeeSurTremie - run.getQuantiteConsommeeDepuisEncours())
+                                        - run.getQuantiteConsommeeDepuisEncours() = run.quantiteProductionTotaleDepuisEncours * LigneComposant.pertes
+                            - dateBesoinAvant = COALESCE(MIN(getDateDebEstimee()), MIN(getDateDebAPI()), MIN(getDateDebPrevue())
+                            - Si dateBesoinAvant < Maintenant
+                                dateBesoinAvant = Maintenant
+                            - Si qteBesoinReelle + (LigneComposant.bbACommanderEnPlus * Composant.qteParConteneur) <= 0
+                                - dateBesoin = null
+                            - Sinon si le 1er run possède getDateDebAPI() et le dernier run ne possède pas getDateFinAPI() -> IE le run est en cours
+                                - Si qteBesoinReelle > 0
+                                    - dateBesoin = Maintenant + [encours + (qteAffectee * 60 / cadenceConso)] secondes
+                                    - dateBesoin = dateBesoin + durée arrêt ligne
+                                - Sinon
+                                    - dateBesoin = getDateFinEstimee() - 10s
+                                - enAmorcage = false
+                            - Sinon si (nb conteneurs affectés + déposés) < LigneComposant.bbAAnticiper
+                                - dateBesoin = getDateDebEstimee() - 30 minutes
+                                - enAmorcage = true
+                                - dateBesoin = dateBesoin - durée arrêt ligne
+                            - Sinon
+                                - Si qteBesoinReelle > 0
+                                    - dateBesoin = getDateDebEstimee() + (qteAffectee * 60 / cadenceConso) secondes
+                                    - dateBesoin = dateBesoin + durée arrêt ligne
+                                - Sinon
+                                    - dateBesoin = getDateFinEstimee() - 10 secondes
+                                - enAmorcage = false
+                            - Si dateBesoin non nulle
+                                - Si runBesoinMoins2 != null && runBesoinMoins2.dateBesoin != null && runBesoinMoins2.qteBesoinReelle > 0 && runBesoinMoins2.dateBesoin > dateBesoin
+                                    - dateBesoin = runBesoinMoins2.dateBesoin + 1 minute
+                                - Si runBesoinMoins1 != null && runBesoinMoins1.dateBesoin != null && runBesoinMoins1.enAmorcage && enAmorcage.dateBesoin > dateBesoin
+                                    - dateBesoin = runBesoinMoins1.dateBesoin + 1 minute
+                    - Modification mapCurrentBesoinsManager avec le besoin en cours de création
+                    ¤¤¤ "Nouveau besoin" ¤¤¤
+                    - Si runBesoinMoins1 != null
+                        - runBesoinMoins2 = runBesoinMoins1
+                    - runBesoinMoins1 = runBesoin
+                - Pour tous les runs du cluster, on renseigne les runBesoinPlus1 et runBesoinPlus2
+        - Mise à jour de mapClustersSb (qui sert à tracer dans les logs les infos du calcul)
+        - Pour chaque navette au statut [a_quai, commandee, en_transit ], appel de la méthode *** NavetteService.checkExpeditions(navette, mapQtesParBL) ***
+            - Si la navette est au statut [ commandee, en_transit ] et qu'elle est retournée par la vue "RTCIS_EXPECTED_WITH_COMPOSANT_VIEW" avec locatn renseignée :
+                - Mise à quai de la navette :
+                    ¤¤¤ "Mise à quai de {}. quai {}" ¤¤¤ (debug)
+                    - Modification du statut à "a_quai"
+                    - Modification de la date de réception à Maintenant
+                    - Pour chaque ConteneurNavette, statut modifié à "surSite"
+                    - Modification de l'emplacement par la valeur de locatn (on supprime "DOOR" et les espaces autour)
+                    - Sauvegarde en base
+                    - Création UserAction : "NAVETTE. MISE A QUAI"
+            - Sinon si statut [ a_quai ] et emplacement != locatn (si la modification de l'emplacement se fait vraiment, on l'appelera tout le temps sans raison...)
+                - Modification du quai de la navette :
+                    - Modification de l'emplacement par la valeur de locatn (on supprime "DOOR" et les espaces autour)
+                    - Si l'emplacement est différent :
+                        - Sauvegarde en base
+                        - Création UserAction : "NAVETTE. MODIF QUAI"
+            - Si la navette n'est pas en erreur : (toujours vrai au 1er passage)
+                - Initialisation de la map mapContInit avec :
+                    - Clé : Composant (Donc 1 élément par composant)
+                    - Valeur : Le couple (Quantité commandé, Quantité dans le BL)
+                    - Initialisation :
+                        - Quantité commandé : Nombre de conteneurs * Composant.qteParConteneur
+                        - Quantité dans le BL : 0
+                - Avec la vue "RTCIS_EXPECTED_WITH_COMPOSANT_VIEW", on parcours chaque composant (par rapport au BL en cours de traitement) :
+                    - Mise à jour de la quantité dans le BL par rapport au composant (ou à un substitut du composant) // Code compliqué inutile car les cas ne peuvent pas se produire
+                - Création de mapCont à partir de mapContInit pour fustionner les composants équivalents
+                - Parcours de mapCont, si Quantité commandé != Quantité dans le BL :
+                    - Envoi d'une notification : Une erreur a eu lieu pour la navette {Navette en cours de traitement}. Le BL ne semble pas correspondre à la commande
+                        - Insertion dans la table Notification
+                        - Affichage à l'écran du fournisseur la notification
+                    - La navette est alors considérée comme "En erreur"
+                    - Envoi d'un mail "ERREUR BL"
+        - Appel de la méthode *** NavetteCompute.ventileDejaAffectesCluster(cluster, contNonAffectesRTCIS, contNonAffectesNavettesHorsClusters, mapLignesConteneursNavettes, mapArretsParLigne) ***
+            - Récupération du planning de travail pour le cluster en cours
+            ¤¤¤ "A. Ventilation conteneurs déjà affectés" ¤¤¤ (warn)
+            ¤¤¤ "A. Détail planning", "%s" ¤¤¤ (trace)
+                - Pour chaque élément du planning, appel de la méthode *** NavetteCompute.ventileDejaAffectesLigne(cluster, conteneursNonAffectesRTCIS, contNonAffectesNavettesHorsClusters, mapArretsParLigne, (Map)mapLignesConteneursNavettes.get(planningLigne.getLigne()), planningLigne) ***
+                    - Récupération de la liste des runs en cours ou futurs
+                    ¤¤¤ "A1. Conteneurs déjà affectés à la ligne" ¤¤¤ (warn)
+                    - Récupération pour la ligne en cours de traitement du stock RTCIS_STOCK_WITH_COMPO_VIEW
+                        ¤¤¤ "A1a. Dans RTCIS" ¤¤¤ (debug)
+                    - Appel de la méthode *** NavetteCompute.ventileConteneursDejaAffectes(cluster, setRunsEnCoursOuFuturs, mapConteneursStockLigne, mapConteneursNavettes, (List)mapArretsParLigne.get(planningLigne.getLigne())) ***
+                        - Récupération des Run pour le cluster en cours de traitement
+                        ¤¤¤ "A2. Ventilation des conteneurs affectés" ¤¤¤ (warn)
+                        - Pour chaque run :
+                            ¤¤¤ "A2__. Traitement run", "%s" ¤¤¤ (trace)
+                            1- Stock RTCIS
+                                - Si besoin n'est pas couvert pour le composant
+                                - Recherche dans les navettes planifiées (Navette.navetteType = 'planif') affectées à une ligne, si un conteneur n'est pas réservé
+                                - Si trouvé, on le réserve :
+                                    - Affectation de la ligne
+                                    - Affectation de la date de conso estimée
+                                    - Affectation de l'amarçage (oui / non)
+                                    - On réévalue le besoin des runs (précédents, en cours et futurs)
+                                    - On l'ajoute dans les conteneurs à sauvegarder
+                                    - On l'enlève des conteneurs disponibles (mapConteneursStockLigne)
+                            2- Stock RTCIS (PIPO)
+                                - Idem précédent, mais avec les composants de substitution
+                                - On l'enlève des conteneurs disponibles (mapConteneursStockLigne)
+                            3- Navette
+                                - Idem 1- mais avec les conteneurs actifs des navettes
+                                - On l'enlève des conteneurs disponibles (mapConteneursNavettes)
+                            4- Navette (PIPO)
+                                - Idem 3- avec composants de substitution
+                                - On l'enlève des conteneurs disponibles (mapConteneursNavettes)
+                    - Appel de la méthode *** NavetteCompute.desaffecteConteneursRTCIS(cluster, mapConteneursStockLigne.values().stream().flatMap(Collection::stream), conteneursNonAffectesRTCIS) ***
+                        ¤¤¤ "A3. Désaffectation conteneurs RTCIS plus utiles" ¤¤¤ (debug)
+                        - Tous les conteneurs encore présents dans mapConteneursStockLigne sont désafectés
+                    - Appel de la méthode *** NavetteCompute.desaffecteConteneursNavettesHorsCluster(cluster, mapConteneursNavettes.values().stream().flatMap(Collection::stream).filter((cont) -> cont.getNavette().getCluster() == null), contNonAffectesNavettesHorsClusters) ***
+                        ¤¤¤ "A3. Désaffectation conteneurs navettes (hors clusters) plus utiles" ¤¤¤ (debug)
+                        - Tous les conteneurs encore présents dans mapConteneursNavettes sans cluster d'assigné sont désafectés
+                    - Appel de la méthode *** NavetteCompute.desaffecteConteneursNavettesPlanifCluster(cluster, mapConteneursNavettes.values().stream().flatMap(Collection::stream).filter((cont) -> cont.getNavette() instanceof NavettePlanifiee && cont.getNavette().getCluster() != null), contNonAffectesNavettesHorsClusters) ***
+                        ¤¤¤ "A3. Désaffectation conteneurs navettes planifiées sur cluster mais plus utiles" ¤¤¤
+                        - Tous les conteneurs encore présents dans mapConteneursNavettes avec un cluster d'assigné dans une navette planifiée sont désafectés
+    - Appel de la méthode *** NavetteCompute.ventileConteneursNonAffectes(contNonAffectesRTCIS, contNonAffectesNavettesHorsClusters) ***
+    // TODO
+    - Pour chaque élément du planning, appel de la méthode *** NavetteCompute.ventileRtcisNavettesParCluster(cluster, mapArretsParLigne, contNonAffectesRTCIS, contNonAffectesNavettesHorsClusters, true) ***
+    // TODO
+    - Envoie d'un évènement au front que le calcul a été réalisé
+    - Sauvegarde en base des modifications (pourquoi c'est fait après l'évènement ?)
+    - Ecriture dans les logs de la map mapClustersSb
+    - Appel de la méthode *** NavetteCompute.checkEtCommandeStockSecu(this.workPlanning, contNonAffectesRTCIS) ***
+    // TODO
+    ¤¤¤ "----------------- Calcul navettes ---------------" ¤¤¤ (info)
+- Appel de la méthode *** postCompute() ***
+// TODO
+- On renseigne lastComputedPlanning avec workPlanning
+- Publication de l'évènement du nouveau planning calculé
+- Publication de l'évènement pour les nouvelles navettes
+¤¤¤ "------------Fin compute---------------- Temps : {}s" ¤¤¤ (info)
+¤¤¤ "NavettesCompute" ¤¤¤ (warn)
