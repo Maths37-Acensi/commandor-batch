@@ -9,7 +9,7 @@
 Serveurs :
 
 - srv-kanban-app2 (prod actuelle)
-- blo-commandor (test, futur prod)
+- blo-commandor (test, future prod)
 
 #### Variables d'environnement
 
@@ -61,14 +61,14 @@ Toute l'arborescence applicative est présente sous %APP_HOME%.
         - Fichiers divers sous **data**
         - Script d'installation et sa configuration sous **install**
         - Front sous **www**
-        - Exécutable java (.jar) versionné et son lien symbolique (pg-blois-commandor-sb.jar)
+        - Exécutable java (.jar) versionné et son lien symbolique (commandor2.jar)
     - prime-to-commandor
         - Fichiers spécifiques à prime-to-commandor
         - Configuration sous **config**
         - Script d'installation et sa configuration sous **install**
         - Exécutable java (.jar) versionné et son lien symbolique (prime-to-commandor.jar)
 - service
-    - 1 batch par service Windows + une librairie **common.bat**
+    - 1 batch par service Windows + une librairie commune **common.bat**
     - Arguments disponibles :
         - install
         - stop
@@ -85,7 +85,7 @@ Toute l'arborescence applicative est présente sous %APP_HOME%.
         - logging.properties
         - server.xml
 - www
-    - Dossier racine pour Apache (configuration dans le httpd.conf)
+    - Dossier racine global utilisé par Apache (configuration dans le httpd.conf)
     - Contient la partie front des applications
     - 1 dossier par application (commandor1 et commandor2)
 - service-manager.bat
@@ -106,9 +106,10 @@ Afin de simplifier la maintenance, des liens symboliques sont crées pour regrou
 Script de suppression des liens existants :
 
 ``` bat 
-del C:\app\project\commandor1\pg-kanban.jar
-del C:\app\tomcat\webapps\jwas\WEB-INF\lib\pg-kanban.jar
-del C:\app\project\commandor2\pg-blois-commandor-sb.jar
+del C:\app\project\commandor1\commandor1.jar
+del C:\app\tomcat\webapps\jwas\WEB-INF\lib\commandor1.jar
+del C:\app\project\commandor2\commandor2.jar
+del C:\app\project\prime-to-commandor\prime-to-commandor.jar
 
 del C:\app\tomcat\webapps\jwas\META-INF\context.xml
 del C:\app\tomcat\webapps\jwas\WEB-INF\web.xml
@@ -121,9 +122,10 @@ rmdir C:\app\www\commandor2
 Script de création des liens :
 
 ``` bat
-mklink C:\app\project\commandor1\pg-kanban.jar C:\app\project\commandor1\pg-kanban-1.5.2.jar
-mklink C:\app\tomcat\webapps\jwas\WEB-INF\lib\pg-kanban.jar C:\app\project\commandor1\pg-kanban.jar
-mklink C:\app\project\commandor2\pg-blois-commandor-sb.jar C:\app\project\commandor2\pg-blois-commandor-sb-2.1.6.jar
+mklink C:\app\project\commandor1\commandor1.jar C:\app\project\commandor1\commandor-1.5.2.jar
+mklink C:\app\tomcat\webapps\jwas\WEB-INF\lib\commandor1.jar C:\app\project\commandor1\commandor1.jar
+mklink C:\app\project\commandor2\commandor2.jar C:\app\project\commandor2\commandor-2.1.6.jar
+mklink C:\app\project\prime-to-commandor\prime-to-commandor.jar C:\app\project\prime-to-commandor\prime-to-commandor-1.0.0.jar
 
 mklink C:\app\tomcat\webapps\jwas\META-INF\context.xml C:\app\project\commandor1\config\context.xml
 mklink C:\app\tomcat\webapps\jwas\WEB-INF\web.xml C:\app\project\commandor1\config\web.xml
@@ -139,10 +141,10 @@ Serveurs :
 
 - blo-sql-prod01
     - Production
-    - Instance commandor, port 1433
+    - Instance commandor
 - blo-sql-test
     - Test
-    - Instance commandor_test, port 1433
+    - Instance commandor_test
 
 Bases de données :
 
@@ -157,23 +159,131 @@ Bases de données :
 - pg_rtcis
     - Base de données pour commandor v2 spécifique à RTCIS (obsolète avec Prime)
 - prime_data
-    - Base de données spécifique à Prime (partira en production avec Prime)
+    - Base de données spécifique à Prime (Nouvelle base commune pour Prime)
 
 ## Configuration des mails
 
 La configuration pour les mails se trouve à différents endroits :
 
 - Fichier de configuration des applications
+  ``` XML
+  ----------------------------------------------------------
+  -- COMMANDOR V1
+  ----------------------------------------------------------
+  -- %PROJECT_HOME%\commandor1\config\webtask.xml
+  <?xml version="1.0" encoding="ISO-8859-1"?>
+  <web_tasks>
+    <!-- ... -->
+    <init_task name="INIT_APPLI" class="procter.server.kanban.WTInitKanban">
+      <params>
+        <!-- ... -->
+        <!-- Configuration de la messagerie smtp -->
+        <param name="jwas.smtp.host" value="{mail.host}" />
+        <param name="jwas.smtp.port" value="{mail.port}" />
+        <param name="jwas.smtp.from" >{maif.from}</param>
+        <param name="jwas.smtp.username" value=""/>
+        <param name="jwas.smtp.password" value=""/>
+
+        <!-- Paramètres pour les messages d'alerte -->
+        <param name="notif.objet_message" value="{mail.alert.subject}"/>
+    
+        <!-- Paramètres pour les mails de commande -->
+        <param name="mail_commande.objet_message" value="{maif.order.subject}"/>
+        <param name="mail_commande.style_message" >{mail.order.style}</param>
+        <param name="mail_commande.template_message" >{mail.order.template-content}</param>
+        <!-- ... -->
+		</params>
+	</init_task>
+	<!-- ... -->
+  </web_tasks>
+  ```
+  ``` YML
+  #----------------------------------------------------------
+  #-- COMMANDOR V2
+  #----------------------------------------------------------
+  #-- %PROJECT_HOME%\commandor2\config\application-prod.yml
+  # ...
+  spring:
+    mail:
+      host: ${mail.host}
+      port: &mail.port ${mail.port}
+      properties:
+        mail.transport.protocol: smtp
+        smtp:
+          port: *mail.port
+          auth: false
+          starttls.enable: false
+    jpa:
+      show-sql: false
+      properties.hibernate.format_sql: false
+  management:
+    endpoints.web.exposure.include: '*'
+    endpoint.shutdown.enabled: true
+  commandor:
+    imports:
+      manpo:
+        directory: '${project.home}/commandor2/data/manpo/'
+        fileNamePattern: 'manpo.*\.xls.*'
+      workingTimes:
+        directory: '${project.home}/commandor2/data/cr12/'
+        fileNamePattern: '^cr.*\.csv$'
+      planning:
+        directory: '${project.home}/commandor2/data/zc228/'
+        fileNamePattern: '^zc228.*\.txt$'
+        emails: '${mail.planning.to}'
+      masterdata:
+        directory: '${project.home}/commandor2/data/masterdata/'
+        fileNamePattern: '.*\.xls?'
+        emails: '${mail.masterdata.to}'
+      navettes:
+        commandes:
+          emails: '${mail.order.to}'
+          emailsErreurs: '${mail.order.error.to}'
+          delaiAvantCommande: 195
+          nbMinutesAmorcage: 30
+          alpla:
+            clusters: 'C01,C10-11,C12-13,C14,C16,C17,C14-15'
+            emails: '${mail.order.alpla.to}'
+        nbHeuresMaxCalcul: 96
+      mails:
+        enabled: true
+        prefixe-sujet: '${mail.subject.prefix}'
+        testing.to: ${mail.testing.to}
+        enabled: false
+        debug.emails: '${mail.debug.to}'
+  logging.config: 'classpath:log4j2-prod.xml'
+  ldap:
+    url: ${ldap.url}
+    domain: ${ldap.url}/${ldap.baseDn}
+    baseDn:
+    bindDn: extShortName={0},${ldap.baseDn}
+    userDn: {userDn}
+    bindPassword: {userPassword}
+    searchBase: ${ldap.baseDn}
+  ```
 - Tables
-    - [pg_commandorv1].[dbo].[sys_mail_notif] : champ value
-    - [pg_commandorv1].[dbo].[SECU_UTILISATEUR] : champ mail
-    - [pg_commandorv2].[dbo].[User] : champ email
+  ``` SQL
+  ----------------------------------------------------------
+  -- COMMANDOR V1
+  ----------------------------------------------------------
+  -- Mail aux fournisseurs  
+  SELECT value FROM [pg_commandorv1].[dbo].[sys_mail_notif];
+  -- Mail aux utilisateurs
+  SELECT mail FROM [pg_commandorv1].[dbo].[SECU_UTILISATEUR];
+  ----------------------------------------------------------
+  -- COMMANDOR V2
+  ----------------------------------------------------------
+  -- Mail aux utilisateurs
+  SELECT email FROM [pg_commandorv2].[dbo].[User];
+  ```
 
 ## Gestion des habilitations
 
 Les habilitations sont renseignées dans les tables.
 
 ### Commandor V1
+
+![pg_commandorv1 - security.png](resources/pg_commandorv1%20-%20security.png)
 
 La table concernée est la table **SECU_UTILISATEUR**, l'identifiant du profil se retrouve dans la table **SECU_PROFIL**.
 
@@ -203,6 +313,8 @@ VALUES (
 ```
 
 ### Commandor V2
+
+![pg_commandorv2 - security.png](resources/pg_commandorv2%20-%20security.png)
 
 La table concernée est la table User_Role, associée à la table **User** et la table **Role**.
 Attention !
@@ -1167,8 +1279,7 @@ TODO
 ## TODO List
 
 - Certificats
-- Connexion à Prime Connector impossible depuis blo-commandor
-- Version SQL Server différente entre les environnements :
+- Migration vers SQL Server 17 :
     - Production (blo-sql-prod01) : 15.0.2116.2
     - Test (blo-sql-test) : 17.0.1000.7
     - Impact à minima sur la synchronisation des compteurs
@@ -1180,5 +1291,3 @@ TODO
 
 J'ai ajouté le certicat Root présent sous C:\domaine\Certificat dans le cacerts du jdk (keytool -importcert -file "PG
 Root CA 2.cer" -cacerts -alias pg-root-ca).
-
-
