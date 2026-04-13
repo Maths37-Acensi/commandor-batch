@@ -17,4 +17,6 @@ batch:
     endpoint-delivery: "/BLOIS/oddrequest/v2/prime/Commandor/delivery_for_commandor"
     endpoint-inventory: "/BLOIS/oddrequest/v2/prime/Commandor/inventory_for_commandor"
     endpoint-product: "/BLOIS/oddrequest/v2/prime/Commandor/products_for_commandor"
-    endpoint-unload: "/BLOIS/oddrequest/v2/prime/Commandor/unload_for_commandor"
+    endpoint-unload:
+logging:
+  config: 'classpath:log4j2-prod.xml'

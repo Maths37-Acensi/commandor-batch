@@ -2,7 +2,7 @@
 
 set CURRENT_DIR=%~dp0
 set CURRENT_FILE=%~nx0
-set SERVICE_NAME=1-Commandor2
+set SERVICE_NAME=2-Commandor2
 rem !!! Attention des configurations de démarrage sont renseignées dans le fichier %PROJECT_HOME%\commandor2\install\commandor2.xml !!!
 
 if ""%1"" == ""install"" goto doInstall

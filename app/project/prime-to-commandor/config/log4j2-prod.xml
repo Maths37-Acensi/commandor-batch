@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="warn" monitorInterval="30">
     <Properties>
-
         <!-- Choix du répertoire utilisé pour la génération des logs -->
         <Property name="basePath">${env:LOG_HOME}/prime-to-commandor</Property>
-
-        <Property name="patternLog">[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} %l [%-15t] %-20.-20C{1.} %msg%n</Property>
-
-        <Property name="patternUtiliseConsole">${patternLog}</Property>
+        <Property name="patternLog">%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n</Property>
         <Property name="patternUtiliseFichiers">${patternLog}</Property>
-
     </Properties>
 
     <Appenders>
-
         <Console name="console" target="SYSTEM_OUT">
             <PatternLayout charset="UTF-8">
                 <pattern>${patternUtiliseFichiers}</pattern>
@@ -32,7 +26,6 @@
             <!-- Nb fichiers max à conserver -->
             <DefaultRolloverStrategy max="60"/>
         </RollingFile>
-
     </Appenders>
 
     <Loggers>
@@ -52,9 +45,7 @@
             <appender-ref ref="fileLogger"/>
         </Logger>
         <Root level="info" additivity="true">
-            <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>
         </Root>
-
     </Loggers>
 </Configuration>

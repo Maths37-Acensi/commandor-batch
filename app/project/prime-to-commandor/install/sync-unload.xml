@@ -39,13 +39,14 @@
     <!-- ID of the service. It should be unique accross the Windows system-->
     <id>%SERVICE_NAME%</id>
     <!-- Display name of the service -->
-    <name>Commandor v2 Service</name>
+    <name>Prime to Commandor - unload</name>
     <!-- Service description -->
     <description>This service is used to launch Spring Boot application</description>
 
-    <env name="PRIME_TO_COMMANDOR_JAR" value="prime-to-commandor.jar"/>
+    <env name="PROJECT_NAME" value="prime-to-commandor"/>
+    <env name="PROJECT_DIR" value="%PROJECT_HOME%/%PROJECT_NAME%"/>
     <env name="SPRING_PROFILES_ACTIVE" value="prod"/>
-    <env name="PRIME_TO_COMMANDOR_CLASS" value="com.petg.blois.Main"/>
+    <env name="MAIN_CLASS" value="com.petg.blois.Main"/>
     <env name="BATCH_KEY" value="unload"/>
     <env name="BATCH_DELAY" value="30000"/>
 
@@ -53,8 +54,8 @@
     <executable>java</executable>
     <arguments>
         -Dlog.home=%LOG_HOME%;-Dproject.home=%PROJECT_HOME%
-        -cp "%PROJECT_HOME%/prime-to-commandor/%PRIME_TO_COMMANDOR_JAR%;%PROJECT_HOME%/prime-to-commandor/config"
-        %PRIME_TO_COMMANDOR_CLASS%
+        -cp "%PROJECT_DIR%/%PROJECT_NAME%.jar;%PROJECT_DIR%/config"
+        %MAIN_CLASS%
     </arguments>
     <!--
       OPTION: priority
@@ -116,7 +117,7 @@
       Default value: Directory, which contains the executor
     -->
 
-    <logpath>%LOG_HOME%/prime-to-commandor</logpath>
+    <logpath>%LOG_HOME%/%PROJECT_NAME%</logpath>
 
 
     <!--

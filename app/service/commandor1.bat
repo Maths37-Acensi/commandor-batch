@@ -1,7 +1,7 @@
 @ECHO OFF     
 
 set CURRENT_DIR=%~dp0
-set SERVICE_NAME=1-Commandor1
+set SERVICE_NAME=2-Commandor1
 
 if ""%1"" == ""install"" goto doInstall
 

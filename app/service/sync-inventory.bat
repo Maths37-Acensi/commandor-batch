@@ -2,7 +2,7 @@
 
 set CURRENT_DIR=%~dp0
 set CURRENT_FILE=%~nx0
-set SERVICE_NAME=3-Sync-Delivery
+set SERVICE_NAME=3-Sync-Inventory
 rem !!! Attention des configurations de démarrage sont renseignées dans le fichier %PROJECT_HOME%\prime-to-commandor\install\sync-inventory.xml !!!
 
 if ""%1"" == ""install"" goto doInstall

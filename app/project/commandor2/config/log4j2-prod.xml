@@ -1,80 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="warn" monitorInterval="30">
     <Properties>
-
         <!-- Choix du répertoire utilisé pour la génération des logs -->
         <Property name="basePath">${env:LOG_HOME}/commandor2</Property>
-
-        <!-- pattern intéressant pour le développement. ATTENTION : limite les perfs (le paramètre %l). A utiliser avec prudence donc -->
-        <Property name="patternTlgDev">[%-5level] %d{HH:mm:ss.SSS} (%9rms) [%-15t] %-255msg - %l%n</Property>
-
-        <!-- pattern intéressant pour la production -->
-        <Property name="patternTlgProd">[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%-15t] %-20.-20C{1.} %msg%n</Property>
-
-        <Property name="patternUtiliseConsole">${patternTlgDev}</Property>
-        <Property name="patternUtiliseFichiers">${patternTlgProd}</Property>
-
+        <Property name="patternLog">%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n</Property>
+        <Property name="patternUtiliseFichiers">${patternLog}</Property>
+        <Property name="jdbcCommandorHost">BLO-SQL-PROD01</Property>
+        <Property name="jdbcCommandorInstance">COMMANDOR</Property>
+        <Property name="jdbcCommandorLogDbName">pg_commandorv2_logs</Property>
+        <Property name="jdbcCommandorUserName">SQL-COMMANDOR-RW</Property>
+        <Property name="jdbcCommandorPassword">{Set here password to SQL-COMMANDOR-RW}</Property>
     </Properties>
-
     <Appenders>
-
-        <RollingFile name="fileLoggerErrors1" fileName="${basePath}/pg-blois-commandorErrors.log"
-                     filePattern="${basePath}/old/pg-blois-commandor_Errors%02i.log">
+        <RollingFile name="fileLogger" fileName="${basePath}/commandor2-common.log"
+                     filePattern="${basePath}/old/commandor2-common_%02i.log">
             <PatternLayout charset="UTF-8">
                 <pattern>${patternUtiliseFichiers}</pattern>
             </PatternLayout>
             <Policies>
                 <OnStartupTriggeringPolicy/>
-                <SizeBasedTriggeringPolicy size="15 MB"/>
+                <SizeBasedTriggeringPolicy size="5 MB"/>
             </Policies>
             <DefaultRolloverStrategy max="60"/><!-- Nb fichiers max à conserver -->
         </RollingFile>
-
-        <RollingFile name="fileLogger1" fileName="${basePath}/pg-blois-commandor.log"
-                     filePattern="${basePath}/old/pg-blois-commandor_%02i.log">
+        <RollingFile name="fileLoggerNavetteCompute" fileName="${basePath}/commandor2-navette-compute.log"
+                     filePattern="${basePath}/old/commandor2-navette-compute_%02i.log">
             <PatternLayout charset="UTF-8">
                 <pattern>${patternUtiliseFichiers}</pattern>
             </PatternLayout>
             <Policies>
                 <OnStartupTriggeringPolicy/>
-                <SizeBasedTriggeringPolicy size="15 MB"/>
+                <SizeBasedTriggeringPolicy size="5 MB"/>
             </Policies>
             <DefaultRolloverStrategy max="60"/><!-- Nb fichiers max à conserver -->
         </RollingFile>
-
-        <RollingFile name="navetteCompute" fileName="${basePath}/pg-blois-commandor-navetteCompute.log"
-                     filePattern="${basePath}/old/pg-blois-commandor-navetteCompute_%02i.log">
-            <PatternLayout charset="UTF-8">
-                <pattern>${patternUtiliseFichiers}</pattern>
-            </PatternLayout>
-            <Policies>
-                <OnStartupTriggeringPolicy/>
-                <SizeBasedTriggeringPolicy size="15 MB"/>
-            </Policies>
-            <DefaultRolloverStrategy max="600"/><!-- Nb fichiers max à conserver -->
-        </RollingFile>
-
-        <RollingFile name="rtcis" fileName="${basePath}/pg-blois-commandor-rtcis.log"
-                     filePattern="${basePath}/old/pg-blois-commandor-rtcis_%02i.log">
-            <PatternLayout charset="UTF-8">
-                <pattern>${patternUtiliseFichiers}</pattern>
-            </PatternLayout>
-            <Policies>
-                <OnStartupTriggeringPolicy/>
-                <SizeBasedTriggeringPolicy size="15 MB"/>
-            </Policies>
-            <DefaultRolloverStrategy max="60"/><!-- Nb fichiers max à conserver -->
-        </RollingFile>
-
-        <Console name="console" target="SYSTEM_OUT">
-            <PatternLayout charset="UTF-8">
-                <pattern>${patternUtiliseFichiers}</pattern>
-            </PatternLayout>
-        </Console>
-
-
-        <RollingFile name="fileLoggerOther" fileName="${basePath}/pg-blois-commandor-other.log"
-                     filePattern="${basePath}/old/pg-blois-commandor-other_%02i.log">
+        <RollingFile name="fileLoggerImport" fileName="${basePath}/commandor2-import.log"
+                     filePattern="${basePath}/old/commandor2-import_%02i.log">
             <PatternLayout charset="UTF-8">
                 <pattern>${patternUtiliseFichiers}</pattern>
             </PatternLayout>
@@ -86,11 +47,10 @@
         </RollingFile>
 
         <JDBC name="jdbc_navetteComputeLog" tableName="log_compute" ignoreExceptions="false">
-            <!-- TODO set SQL-COMMANDOR-RW password -->
             <PoolingDriver
-                    connectionString="jdbc:sqlserver://BLO-SQL-PROD01\COMMANDOR;databaseName=pg_commandorv2_logs;applicationName=pg_commandorv2_logger?useServerPrepStmts=true;trustServerCertificate=true;loginTimeout=30;"
-                    userName="SQL-COMMANDOR-RW"
-                    password=""
+                    connectionString="jdbc:sqlserver://${jdbcCommandorHost}\${jdbcCommandorInstance};databaseName=${jdbcCommandorLogDbName};applicationName=${jdbcCommandorLogDbName}?useServerPrepStmts=true;trustServerCertificate=true;loginTimeout=30;"
+                    userName="${jdbcCommandorUserName}"
+                    password="${jdbcCommandorPassword}"
                     driverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver">
                 <PoolableConnectionFactory
                         autoCommitOnReturn="true"
@@ -127,11 +87,10 @@
         </JDBC>
 
         <JDBC name="databaseAppenderCommon" tableName="dbo.log4j_common">
-            <!-- TODO set SQL-COMMANDOR-RW password -->
             <PoolingDriver
-                    connectionString="jdbc:sqlserver://BLO-SQL-PROD01\COMMANDOR;databaseName=pg_commandorv2_logs;applicationName=pg_commandorv2_logger?useServerPrepStmts=true;trustServerCertificate=true;loginTimeout=30;"
-                    userName="SQL-COMMANDOR-RW"
-                    password=""
+                    connectionString="jdbc:sqlserver://${jdbcCommandorHost}\${jdbcCommandorInstance};databaseName=${jdbcCommandorLogDbName};applicationName=${jdbcCommandorLogDbName}?useServerPrepStmts=true;trustServerCertificate=true;loginTimeout=30;"
+                    userName="${jdbcCommandorUserName}"
+                    password="${jdbcCommandorPassword}"
                     driverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver">
                 <PoolableConnectionFactory
                         autoCommitOnReturn="true"
@@ -160,62 +119,54 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="com.tlgpro.blois.commandor.rtcis" level="error" additivity="false">
-            <appender-ref ref="rtcis"/>
-        </Logger>
-        <AsyncLogger name="com2.tlgpro.blois.commandor.tasks.LogsMetier.NavetteComputeLogs" level="error"
+        <Root level="info" additivity="true">
+            <appender-ref ref="fileLogger"/>
+        </Root>
+        <AsyncLogger name="com2.tlgpro.blois.commandor.tasks.LogsMetier.NavetteComputeLogs" level="info"
                      additivity="false">
-            <appender-ref ref="navetteCompute" level="error"/>
+            <appender-ref ref="fileLoggerNavetteCompute"/>
             <appender-ref ref="jdbc_navetteComputeLog" level="error"/>
         </AsyncLogger>
-        <Logger name="com.tlgpro.blois.commandor" level="error" additivity="false">
-            <appender-ref ref="fileLogger1"/>
+        <Logger name="com.tlgpro.blois.commandor.rtcis" level="info" additivity="false">
+            <appender-ref ref="fileLogger"/>
+        </Logger>
+        <Logger name="com.tlgpro.blois.commandor" level="info" additivity="false">
+            <appender-ref ref="fileLogger"/>
         </Logger>
         <Logger name="com.tlgpro.blois.commandor.tasks.ImportPlanning" level="info" additivity="false">
-            <appender-ref ref="fileLoggerOther"/>
+            <appender-ref ref="fileLoggerImport"/>
             <appender-ref ref="databaseAppenderCommon"/>
         </Logger>
         <Logger name="com.tlgpro.blois.commandor.tasks.ImportWorkTimes" level="info" additivity="false">
-            <appender-ref ref="fileLoggerOther"/>
+            <appender-ref ref="fileLoggerImport"/>
             <appender-ref ref="databaseAppenderCommon"/>
         </Logger>
         <Logger name="com.tlgpro.blois.commandor.tasks.ImportManPo" level="info" additivity="false">
-            <appender-ref ref="fileLoggerOther"/>
+            <appender-ref ref="fileLoggerImport"/>
             <appender-ref ref="databaseAppenderCommon"/>
         </Logger>
         <Logger name="com.tlgpro.blois.commandor.tasks.ImportMasterData" level="info" additivity="false">
-            <appender-ref ref="fileLoggerOther"/>
+            <appender-ref ref="fileLoggerImport"/>
             <appender-ref ref="databaseAppenderCommon"/>
         </Logger>
-
-        <Logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="off"
-                additivity="false">
-            <appender-ref ref="fileLogger1"/>
+        <Logger name="org.apache.logging.log4j" level="info" additivity="true">
+            <appender-ref ref="fileLogger"/>
         </Logger>
-
-        <Logger name="org.apache.logging.log4j" level="error" additivity="true">
-            <appender-ref ref="fileLoggerOther"/>
+        <Logger name="com.tlgpro.blois.commandor.service.commandor.impl" level="info" additivity="false">
+            <appender-ref ref="fileLogger"/>
         </Logger>
-
-        <Logger name="com.tlgpro.blois.commandor.service.commandor.impl" level="error" additivity="false">
-            <appender-ref ref="fileLogger1" level="debug"/>
-            <appender-ref ref="console"/>
-        </Logger>
-
-        <Logger name="com.tlgpro.blois.commandor" level="error" additivity="true">
-            <appender-ref ref="fileLoggerErrors1"/>
+        <Logger name="com.tlgpro.blois.commandor" level="info" additivity="true">
+            <appender-ref ref="fileLogger"/>
         </Logger>
         <Logger name="org.hibernate.SQL" level="off" additivity="false">
-            <appender-ref ref="fileLoggerOther"/>
+            <appender-ref ref="fileLogger"/>
         </Logger>
-
         <Logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="off" additivity="false">
-            <appender-ref ref="fileLoggerOther"/>
+            <appender-ref ref="fileLogger"/>
         </Logger>
-        <Root level="info" additivity="true">
-            <appender-ref ref="console"/>
-            <appender-ref ref="fileLogger1"/>
-        </Root>
-
+        <Logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="off"
+                additivity="false">
+            <appender-ref ref="fileLogger"/>
+        </Logger>
     </Loggers>
 </Configuration>

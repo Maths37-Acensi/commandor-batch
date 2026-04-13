@@ -1,6 +1,6 @@
 @ECHO OFF     
 
-set SERVICE_DIR=%~dp0\services
+set SERVICE_DIR=%~dp0\service
 set COMMANDOR1_EXE=%SERVICE_DIR%\commandor1.bat
 set COMMANDOR2_EXE=%SERVICE_DIR%\commandor2.bat
 set APACHE_EXE=%SERVICE_DIR%\apache.bat

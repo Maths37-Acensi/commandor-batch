@@ -1,7 +1,7 @@
 @ECHO OFF     
 
 set CURRENT_DIR=%~dp0
-set SERVICE_NAME=2-Apache
+set SERVICE_NAME=1-Apache
 
 if ""%1"" == ""install"" goto doInstall
 
