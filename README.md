@@ -257,7 +257,8 @@ La configuration pour les mails se trouve à différents endroits :
     domain: ${ldap.url}/${ldap.baseDn}
     baseDn:
     bindDn: extShortName={0},${ldap.baseDn}
-    userDn: {userDn}
+    # C'est un compte technique
+    userDn: uid=DJ9215,${ldap.baseDn}
     bindPassword: {userPassword}
     searchBase: ${ldap.baseDn}
   ```
