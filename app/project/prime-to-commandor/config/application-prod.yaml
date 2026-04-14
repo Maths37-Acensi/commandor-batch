@@ -1,22 +1,25 @@
 batch:
-  database: # TODO set SQL-COMMANDOR-RW password
+  database:
     jdbc-url-pattern: "jdbc:sqlserver://%s\\%s;databaseName=%s;applicationName=%s?useServerPrepStmts=true;trustServerCertificate=true;loginTimeout=30;"
     host: "blo-sql-prod01"
     instance: "commandor"
     db-name: "prime_data"
     app-name: "prime-to-commandor"
     username: "SQL-COMMANDOR-RW"
-    password: ""
+    password: { set SQL-COMMANDOR-RW password }
     schema: "dbo"
-  prime: # TODO set PrimeConCommandor password
+  prime:
     base-url: "https://blo-primconnect/prime/replica/proxy"
     login-key: "application-login"
     password-key: "application-password"
     login-value: "PrimeConCommandor"
-    password-value: ""
-    endpoint-delivery: "/BLOIS/oddrequest/v2/prime/Commandor/delivery_for_commandor"
-    endpoint-inventory: "/BLOIS/oddrequest/v2/prime/Commandor/inventory_for_commandor"
-    endpoint-product: "/BLOIS/oddrequest/v2/prime/Commandor/products_for_commandor"
-    endpoint-unload:
+    password-value: { set PrimeConCommandor password }
+    endpoint-delivery: "/BLOIS/oddrequest/v2/prime/Commandor/commandor_delivery"
+    endpoint-inventory: "/BLOIS/oddrequest/v2/prime/Commandor/commandor_inventory"
+    endpoint-product: "/BLOIS/oddrequest/v2/prime/Commandor/commandor_product"
+    endpoint-unload: "/BLOIS/oddrequest/v2/prime/Commandor/commandor_unload"
 logging:
-  config: 'classpath:log4j2-prod.xml'
+  pattern.console: "%d [%-5p] %F:%L - %m%n"
+  level:
+    root: WARN
+    com.petg.blois: INFO

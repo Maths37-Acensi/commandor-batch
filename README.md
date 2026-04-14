@@ -1288,7 +1288,40 @@ TODO
         - pg_commandorv1.dbo.HTTP_Request : Changement du **Content-Type** pour **application/plain-text**
 - URL prime replicat à harmoniser
 
+## Prime Connector
+
+Pour se connecter à Prime Connector, on utilise le compte *PrimeConCommandor*.
+Attention, un compte est autorisé à une liste d'IP.
+S'il y a des caractères autour de l'IP (en dehors du séparateur '_#_'), ça ne fonctionnera pas.
+
+### Création d'un service
+
+Un service (endpoint) est composé de 4 éléments :
+
+- Code
+    - Permet de l'identifiant (/!\ Non sensible à la casse !)
+- service de connexion
+    - primeOnlineProxy : Connexion en direct à Prime
+    - primeReplicaProxy : Connexion à Prime Replica (permet l'utilisation des requêtes spécifiques)
+    - primeOthers
+    - primeReplicaSpecialized
+    - primeReplica
+- URL
+    - Endpoint pour accéder au service
+    - Ex pour Prime Replica : /BLOIS/oddrequest/v2/prime/Commandor/commandor_delivery
+        - Partie fixe : /BLOIS/oddrequest/v2
+        - Site : PRIME
+        - Projet : Commandor
+        - Nom : commandor_delivery
+- Opération
+    - Dans le cas d'un WS, on peut choisir le service accédé (ou * pour tous)
+    - Dans le cas de Prime Replica, il n'y a qu'un service, le plus simple est de mettre '*'
+
+Quand le service est créé, il faut penser à habiliter l'utilisateur dessus.
+Il suffit de modifier l'utilisateur, et sélectionner les différentes URL accessibles par celui-ci.
+
 ## Notes
 
 J'ai ajouté le certicat Root présent sous C:\domaine\Certificat dans le cacerts du jdk (keytool -importcert -file "PG
 Root CA 2.cer" -cacerts -alias pg-root-ca).
+Probablement inutile, là ça fonctionne bien avec juste apache qui pointe dessus.
