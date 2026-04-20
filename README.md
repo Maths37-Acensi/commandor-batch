@@ -31,72 +31,121 @@ Modification de la variable **PATH** pour y ajouter les exécutables java et php
 
 Toute l'arborescence applicative est présente sous %APP_HOME%.
 
-- apache
+- **apache**
     - Installation Apache 2.4
     - Configuration sous **conf** :
-        - httpd.conf
-        - mime.types
-        - extra/httpd-vhosts.conf
-        - extra/httpd-proxy.conf
-- java
-    - Installation Java 21
-    - jdk21
-- log
+        - *httpd.conf*
+        - *httpd-proxy.conf*
+        - *mime.types*
+- **java**
+    - Installation Java 21 (jdk)
+- **log**
     - Dossier racine où sont stockés les logs
     - Chaque techno / projet contient un sous dossier
-- php
+    - **apache**
+    - **commandor1**
+    - **commandor2**
+    - **prime-to-commandor**
+    - **tomcat** : log pour tomcat, de commandor v1
+- **php**
     - Installation PHP 5.3.28
-    - Conguration dans **php.ini**
-- project
-    - commandor1
+    - Conguration sous :
+        - *php.ini*
+- **project**
+    - **commandor1**
         - Fichiers spécifiques à commandor v1
-        - Configuration sous **config**
-        - Fichiers zc sous **sap**
-        - Fichiers contenant les plans calculés de l'application sous **work**
-        - Front sous **www**
-        - Exécutable java (.jar) versionné et son lien symbolique (pg-kanban.jar)
-    - commandor2
+        - **config**
+            - **mapping** : Mapping entre les tables et les objets Java
+                - [kanban.map](app/project/commandor1/config/mapping/kanban.map)
+                - [log.map](app/project/commandor1/config/mapping/log.map)
+                - [obj_admin.map](app/project/commandor1/config/mapping/obj_admin.map)
+                - [secu_user.map](app/project/commandor1/config/mapping/secu_user.map)
+            - **model** : Relation entre les tables
+                - [param.xml](app/project/commandor1/config/model/param.xml)
+                - [path.xml](app/project/commandor1/config/model/path.xml)
+            - [context.xml](app/project/commandor1/config/context.xml) : Configuration d'accès à la base de données
+            - [log4j.properties](app/project/commandor1/config/log4j.properties) : Configuration logger + accès à la
+              base de données pour les logs
+            - [source.xml](app/project/commandor1/config/source.xml) Configuration JDBC
+            - [web.xml](app/project/commandor1/config/web.xml) : Configuration primaire de commandor v1
+            - [webtask.xml](app/project/commandor1/config/webtask.xml) : Configuration autre (les tâches, les mails,
+              LDAP, certaines variables)
+        - **sap** : Fichiers planning zc
+        - **save** : Fichiers contenant les plans calculés de l'application
+            - *sauveCdeTubesL2* : Contient le calcul pour les lignes 4 & 5 (2 c'est l'id en base)
+            - *sauveCdeTubesL3* : Contient le calcul pour la ligne 7 (3 c'est l'id en base)
+        - **www** : Partie front de l'application
+        - *commandor1-{version}.jar* : Exécutable java
+    - **commandor2**
         - Fichiers spécifiques à commandor v2
-        - Configuration sous **config**
-        - Fichiers divers sous **data**
-        - Script d'installation et sa configuration sous **install**
-        - Front sous **www**
-        - Exécutable java (.jar) versionné et son lien symbolique (commandor2.jar)
-    - prime-to-commandor
-        - Fichiers spécifiques à prime-to-commandor
-        - Configuration sous **config**
-        - Script d'installation et sa configuration sous **install**
-        - Exécutable java (.jar) versionné et son lien symbolique (prime-to-commandor.jar)
-- service
+        - **config**
+            - [application-prod.yml](app/project/commandor2/config/application-prod.yml) : Fichier principal de
+              configuration de l'application
+            - [log4j2-prod.xml](app/project/commandor2/config/log4j2-prod.xml) : Fichier externe de configuration des
+              logs (accès également à la base de données pour
+              les logs)
+        - **data** : Archive des différentes fichiers importés
+        - **install** :
+            - [commandor2.xml](app/project/commandor2/install/commandor2.xml) : Configuration du service
+        - **www** : Partie front de l'application
+        - *commandor2-{version}.jar* : Exécutable java
+    - **common**
+        - **install**
+            - [install.exe](app/project/common/install/install.exe) : Exécutable pour la gestion des services
+    - **prime-to-commandor**
+        - Fichiers spécifiques à commandor v2
+        - **config**
+            - [application-prod.yaml](app/project/prime-to-commandor/config/application-prod.yaml) : Fichier unique de
+              configuration
+        - **install**
+            - [sync-delivery.xml](app/project/prime-to-commandor/install/sync-delivery.xml)
+            - [sync-inventory.xml](app/project/prime-to-commandor/install/sync-inventory.xml)
+            - [sync-product.xml](app/project/prime-to-commandor/install/sync-product.xml)
+            - [sync-unload.xml](app/project/prime-to-commandor/install/sync-unload.xml)
+        - *prime-to-commandor-{version}.jar* : Exécutable java
+- **service**
     - 1 batch par service Windows + une librairie commune **common.bat**
     - Arguments disponibles :
         - install
         - stop
         - start
         - delete
-- ssl (%SSL_HOME%)
+    - [apache.bat](app/service/apache.bat)
+    - [commandor1.bat](app/service/commandor1.bat)
+    - [commandor2.bat](app/service/commandor2.bat)
+    - [common.bat](app/service/common.bat)
+    - [sync-delivery.bat](app/service/sync-delivery.bat)
+    - [sync-inventory.bat](app/service/sync-inventory.bat)
+    - [sync-product.bat](app/service/sync-product.bat)
+    - [sync-unload.bat](app/service/sync-unload.bat)
+- **ssl** (%SSL_HOME%)
     - Contient les différents certificats
-- tmp (%TEMP_HOME%)
+    - *BLO-COMMANDOR.BLO-PROD.LOCAL.crt*
+    - *BLO-COMMANDOR.BLO-PROD.LOCAL.key*
+- **tmp** (%TEMP_HOME%)
     - Dossier pour les fichiers temporaires
-- tomcat (%CATALINA_HOME%)
+- **tomcat** (%CATALINA_HOME%)
     - Installation Tomcat 9.0.115
-    - Configuration sous **conf**
-        - catalina.policy
-        - logging.properties
-        - server.xml
-- www
+    - **conf**
+        - [catalina.policy](app/tomcat/conf/catalina.policy)
+        - [logging.properties](app/tomcat/conf/logging.properties)
+        - [server.xml](app/tomcat/conf/server.xml)
+- **www**
     - Dossier racine global utilisé par Apache (configuration dans le httpd.conf)
     - Contient la partie front des applications
     - 1 dossier par application (commandor1 et commandor2)
-- service-manager.bat
+- *service-manager.bat*
     - Gestionnaire des services Windows des différentes applications, actions possibles :
         - install : création
         - stop : arrêt
         - start : démarrage
         - delete : suppression
-    - Il est possible d'exécuter plusieurs actions, par exemple pour un redémarrage :
+    - Il est possible d'exécuter plusieurs actions en les séparants d'un espace.
+    - A noter que l'arrêt peut prendre du temps pour réellement arrêter le processus.
+    - Enchainer arrêt / démarrage peut ressortir en erreur si l'arrêt n'est pas terminé.
+    - Exemple pour une installation :
     ``` bat
-    service-manager.bat stop start
+    service-manager.bat install start
     ```
 
 #### Liens symboliques
@@ -106,15 +155,25 @@ Afin de simplifier la maintenance, des liens symboliques sont crées pour regrou
 Script de suppression des liens existants :
 
 ``` bat 
+rem General
 del C:\app\project\commandor1\commandor1.jar
 del C:\app\tomcat\webapps\jwas\WEB-INF\lib\commandor1.jar
 del C:\app\project\commandor2\commandor2.jar
 del C:\app\project\prime-to-commandor\prime-to-commandor.jar
 
+rem Installation
+del C:\app\project\commandor2\install\commandor2.exe
+del C:\app\project\prime-to-commandor\install\sync-delivery.exe
+del C:\app\project\prime-to-commandor\install\sync-inventory.exe
+del C:\app\project\prime-to-commandor\install\sync-product.exe
+del C:\app\project\prime-to-commandor\install\sync-unload.exe
+
+rem Commandor v1
 del C:\app\tomcat\webapps\jwas\META-INF\context.xml
 del C:\app\tomcat\webapps\jwas\WEB-INF\web.xml
 del C:\app\tomcat\webapps\jwas\WEB-INF\classes\log4j.properties
 
+rem Frontend
 rmdir C:\app\www\commandor1
 rmdir C:\app\www\commandor2
 ```
@@ -122,15 +181,25 @@ rmdir C:\app\www\commandor2
 Script de création des liens :
 
 ``` bat
+rem General
 mklink C:\app\project\commandor1\commandor1.jar C:\app\project\commandor1\commandor-1.5.2.jar
 mklink C:\app\tomcat\webapps\jwas\WEB-INF\lib\commandor1.jar C:\app\project\commandor1\commandor1.jar
 mklink C:\app\project\commandor2\commandor2.jar C:\app\project\commandor2\commandor-2.1.6.jar
 mklink C:\app\project\prime-to-commandor\prime-to-commandor.jar C:\app\project\prime-to-commandor\prime-to-commandor-1.0.0.jar
 
+rem Installation
+mklink C:\app\project\commandor2\install\commandor2.exe C:\app\project\common\install\install.exe
+mklink C:\app\project\prime-to-commandor\install\sync-delivery.exe C:\app\project\common\install\install.exe
+mklink C:\app\project\prime-to-commandor\install\sync-inventory.exe C:\app\project\common\install\install.exe
+mklink C:\app\project\prime-to-commandor\install\sync-product.exe C:\app\project\common\install\install.exe
+mklink C:\app\project\prime-to-commandor\install\sync-unload.exe C:\app\project\common\install\install.exe
+
+rem Commandor v1
 mklink C:\app\tomcat\webapps\jwas\META-INF\context.xml C:\app\project\commandor1\config\context.xml
 mklink C:\app\tomcat\webapps\jwas\WEB-INF\web.xml C:\app\project\commandor1\config\web.xml
 mklink C:\app\tomcat\webapps\jwas\WEB-INF\classes\log4j.properties C:\app\project\commandor1\config\log4j.properties
 
+rem Frontend
 mklink /D C:\app\www\commandor1 C:\app\project\commandor1\www
 mklink /D C:\app\www\commandor2 C:\app\project\commandor2\www
 ```
@@ -1277,17 +1346,6 @@ TODO
 
 TODO
 
-## TODO List
-
-- Certificats
-- Migration vers SQL Server 17 :
-    - Production (blo-sql-prod01) : 15.0.2116.2
-    - Test (blo-sql-test) : 17.0.1000.7
-    - Impact à minima sur la synchronisation des compteurs
-        - pg_commandorv1.dbo.NotifySrvApp : Encodage de l'url à faire manuellement
-        - pg_commandorv1.dbo.HTTP_Request : Changement du **Content-Type** pour **application/plain-text**
-- URL prime replicat à harmoniser
-
 ## Prime Connector
 
 Pour se connecter à Prime Connector, on utilise le compte *PrimeConCommandor*.
@@ -1299,7 +1357,7 @@ S'il y a des caractères autour de l'IP (en dehors du séparateur '_#_'), ça ne
 Un service (endpoint) est composé de 4 éléments :
 
 - Code
-    - Permet de l'identifiant (/!\ Non sensible à la casse !)
+    - Permet de l'identifiant (/!\ Insensible à la casse !)
 - service de connexion
     - primeOnlineProxy : Connexion en direct à Prime
     - primeReplicaProxy : Connexion à Prime Replica (permet l'utilisation des requêtes spécifiques)
@@ -1319,9 +1377,3 @@ Un service (endpoint) est composé de 4 éléments :
 
 Quand le service est créé, il faut penser à habiliter l'utilisateur dessus.
 Il suffit de modifier l'utilisateur, et sélectionner les différentes URL accessibles par celui-ci.
-
-## Notes
-
-J'ai ajouté le certicat Root présent sous C:\domaine\Certificat dans le cacerts du jdk (keytool -importcert -file "PG
-Root CA 2.cer" -cacerts -alias pg-root-ca).
-Probablement inutile, là ça fonctionne bien avec juste apache qui pointe dessus.
