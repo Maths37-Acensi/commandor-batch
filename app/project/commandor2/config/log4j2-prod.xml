@@ -21,6 +21,17 @@
                 <OnStartupTriggeringPolicy/>
                 <SizeBasedTriggeringPolicy size="5 MB"/>
             </Policies>
+            <DefaultRolloverStrategy max="20"/><!-- Nb fichiers max à conserver -->
+        </RollingFile>
+        <RollingFile name="fileDatabase" fileName="${basePath}/commandor2-database.log"
+                     filePattern="${basePath}/old/commandor2-database_%02i.log">
+            <PatternLayout charset="UTF-8">
+                <pattern>${patternUtiliseFichiers}</pattern>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="5 MB"/>
+            </Policies>
             <DefaultRolloverStrategy max="60"/><!-- Nb fichiers max à conserver -->
         </RollingFile>
         <RollingFile name="fileLoggerNavetteCompute" fileName="${basePath}/commandor2-navette-compute.log"
@@ -32,7 +43,7 @@
                 <OnStartupTriggeringPolicy/>
                 <SizeBasedTriggeringPolicy size="5 MB"/>
             </Policies>
-            <DefaultRolloverStrategy max="60"/><!-- Nb fichiers max à conserver -->
+            <DefaultRolloverStrategy max="20"/><!-- Nb fichiers max à conserver -->
         </RollingFile>
         <RollingFile name="fileLoggerImport" fileName="${basePath}/commandor2-import.log"
                      filePattern="${basePath}/old/commandor2-import_%02i.log">
@@ -43,7 +54,7 @@
                 <OnStartupTriggeringPolicy/>
                 <SizeBasedTriggeringPolicy size="5 MB"/>
             </Policies>
-            <DefaultRolloverStrategy max="60"/><!-- Nb fichiers max à conserver -->
+            <DefaultRolloverStrategy max="20"/><!-- Nb fichiers max à conserver -->
         </RollingFile>
 
         <JDBC name="jdbc_navetteComputeLog" tableName="log_compute" ignoreExceptions="false">
@@ -119,20 +130,20 @@
     </Appenders>
 
     <Loggers>
-        <Root level="info" additivity="true">
+        <Root level="info">
             <appender-ref ref="fileLogger"/>
         </Root>
+        <Logger name="com.tlgpro.blois.commandor.service.commandor.impl.MailServiceImpl" level="off">
+            <appender-ref ref="fileLogger"/>
+        </Logger>
+        <Logger name="com.tlgpro.blois.commandor.tasks" level="off">
+            <appender-ref ref="fileLogger"/>
+        </Logger>
         <AsyncLogger name="com2.tlgpro.blois.commandor.tasks.LogsMetier.NavetteComputeLogs" level="info"
                      additivity="false">
             <appender-ref ref="fileLoggerNavetteCompute"/>
             <appender-ref ref="jdbc_navetteComputeLog" level="error"/>
         </AsyncLogger>
-        <Logger name="com.tlgpro.blois.commandor.rtcis" level="info" additivity="false">
-            <appender-ref ref="fileLogger"/>
-        </Logger>
-        <Logger name="com.tlgpro.blois.commandor" level="info" additivity="false">
-            <appender-ref ref="fileLogger"/>
-        </Logger>
         <Logger name="com.tlgpro.blois.commandor.tasks.ImportPlanning" level="info" additivity="false">
             <appender-ref ref="fileLoggerImport"/>
             <appender-ref ref="databaseAppenderCommon"/>
@@ -149,24 +160,15 @@
             <appender-ref ref="fileLoggerImport"/>
             <appender-ref ref="databaseAppenderCommon"/>
         </Logger>
-        <Logger name="org.apache.logging.log4j" level="info" additivity="true">
-            <appender-ref ref="fileLogger"/>
-        </Logger>
-        <Logger name="com.tlgpro.blois.commandor.service.commandor.impl" level="info" additivity="false">
-            <appender-ref ref="fileLogger"/>
-        </Logger>
-        <Logger name="com.tlgpro.blois.commandor" level="info" additivity="true">
-            <appender-ref ref="fileLogger"/>
-        </Logger>
         <Logger name="org.hibernate.SQL" level="off" additivity="false">
-            <appender-ref ref="fileLogger"/>
+            <appender-ref ref="fileDatabase"/>
         </Logger>
         <Logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="off" additivity="false">
-            <appender-ref ref="fileLogger"/>
+            <appender-ref ref="fileDatabase"/>
         </Logger>
         <Logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="off"
                 additivity="false">
-            <appender-ref ref="fileLogger"/>
+            <appender-ref ref="fileDatabase"/>
         </Logger>
     </Loggers>
 </Configuration>

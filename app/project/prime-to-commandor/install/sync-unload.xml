@@ -39,7 +39,7 @@
     <!-- ID of the service. It should be unique accross the Windows system-->
     <id>%SERVICE_NAME%</id>
     <!-- Display name of the service -->
-    <name>Prime to Commandor - unload</name>
+    <name>%SERVICE_NAME%</name>
     <!-- Service description -->
     <description>This service is used to launch Spring Boot application</description>
 
