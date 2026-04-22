@@ -1340,7 +1340,51 @@ TODO
 
 ## Commandor V2
 
-TODO
+### Configuration des mails
+
+commandor.imports.planning.emails :
+
+- [Commandor v2] Importation ZC228
+- [Commandor v2][Erreur] Importation ZC228
+- [Commandor v2] Importation ManPo
+- [Commandor v2][Erreur] Importation ManPo
+- [Commandor v2] Importation ouvertures lignes
+- [Commandor v2][Erreur] Importation ouvertures lignes
+
+commandor.imports.masterdata.emails :
+
+- [Commandor v2] Importation Masterdata produits
+- [Commandor v2][Erreur] Importation masterdata
+
+commandor.navettes.commandes.emails :
+
+- Commande navette n° %1$d pour cluster %2$s (%3$d BB)
+- Commande navette JIT n° %1$d. Fournisseur %4$s pour cluster %2$s (%3$d BB)
+- Commande navette planifiée n° %1$d (%2$d BB)
+- Commande navette stock n° %1$d (%2$d BB)
+- ERREUR BL
+
+commandor.navettes.commandes.emailsErreurs :
+
+- Suspicion pour navette n° %1$d pour cluster %2$s (%3$d BB)
+- Erreur masterdata ligne/composant
+
+commandor.navettes.commandes.alpla.emails :
+
+- Commande navette n° %1$d pour cluster %2$s (%3$d BB)
+
+commandor.mails.enabled :
+Active (ou pas) l'envoi des emails
+
+commandor.mails.testing.to :
+Destinataires si le mode tests est activé
+
+commandor.mails.testing.enabled :
+Si activé, les mails sont envoyés à 'commandor.mails.testing.to', sinon ils sont envoyés aux destinataires configurés
+
+commandor.mails.debug.emails:
+
+- [Debug]
 
 ## Prime To Commandor
 

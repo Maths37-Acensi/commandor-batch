@@ -139,7 +139,7 @@
         <Logger name="com.tlgpro.blois.commandor.tasks" level="off">
             <appender-ref ref="fileLogger"/>
         </Logger>
-        <AsyncLogger name="com2.tlgpro.blois.commandor.tasks.LogsMetier.NavetteComputeLogs" level="info"
+        <AsyncLogger name="com2.tlgpro.blois.commandor.tasks.LogsMetier.NavetteComputeLogs" level="error"
                      additivity="false">
             <appender-ref ref="fileLoggerNavetteCompute"/>
             <appender-ref ref="jdbc_navetteComputeLog" level="error"/>
